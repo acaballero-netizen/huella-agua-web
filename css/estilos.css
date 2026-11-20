@@ -1,0 +1,1256 @@
+/* Huella de agua · estilos
+ *
+ * Basado en la herramienta «Índice preliminar de industrialización» del IVE: misma
+ * cabecera, panel de ruedas, secciones plegables y pie. Por encima va un sistema propio,
+ * que es el que manda en cualquier sección nueva:
+ *
+ * 1. TRES ALTURAS DE TEXTO (más una auxiliar). No se usan otros tamaños.
+ *      --t1  1rem     título de sección (1. EMPLAZAMIENTO…), cifras destacadas
+ *      --t2  .875rem  título de subsección (1.1 PROVINCIA), valor dentro de los controles
+ *      --t3  .8rem    títulos de grupo, etiquetas, textos y datos
+ *      --t4  .72rem   auxiliar: unidades, fuentes, cabeceras de columna
+ *    Dos textos del mismo nivel jerárquico llevan siempre la misma altura; lo que cambia
+ *    entre ellos es el color o el peso, nunca el tamaño.
+ *
+ * 2. EL COLOR SIGNIFICA ALGO.
+ *      azul   (--editable…)  lo que rellena el usuario, en dos formas según la acción:
+ *               ESCRIBIR     fondo azul claro, borde fino, texto azul (cajas de número y
+ *                            texto, contadores).
+ *               ELEGIR       fondo blanco, borde azul de 2 px, texto azul en negrita
+ *                            (desplegables, selectores en pastillas, destinos). Lo elegido
+ *                            se rellena de azul con texto blanco.
+ *                            Los títulos de lo que se rellena van en azul y negrita; los de
+ *                            datos, en gris y peso normal.
+ *      gris   (--dato…)      lo que da la herramienta y no se toca: datos de la provincia,
+ *                            totales, valores calculados.
+ *      ámbar  (--aviso)      valor que el proyectista ha cambiado respecto al de partida.
+ *      A–G    (--clase-…)    solo para clases y estados de escasez.
+ *      neutro (--linea…)     estructura: bordes de sección, separadores, flechas, ⓘ.
+ *    El azul no se usa como decoración: si algo es azul, se puede tocar.
+ *
+ * 3. ALINEACIÓN. Las etiquetas van ENCIMA de las cajas, nunca flotando dentro, y las
+ *    columnas que van lado a lado empiezan con un título del mismo nivel. Así las cajas
+ *    de una misma fila quedan a la misma altura.
+ */
+:root {
+  /* texto */
+  --t1: 1rem;
+  --t2: .875rem;
+  --t3: .8rem;
+  --t4: .72rem;
+  --lh: 1.4;
+
+  /* significado */
+  --editable: #2f7aa6;
+  --editable-texto: #1d5a80;
+  --editable-fondo: #eef5fa;
+  --editable-borde: #9cc3dc;
+  --dato-texto: #333;
+  --dato-suave: #6b7177;
+  --dato-fondo: #f3f4f5;
+  --aviso-colour: #c98a00;
+  --error-colour: #f44336;
+  --linea: #c9ced3;
+  --linea-suave: #e3e6e9;
+
+  /* herencia de la herramienta IVE */
+  --primary-colour: var(--editable);
+  --secondary-colour: #f0f0f0;
+  --darker-secondary-colour: #555555;
+  --text-colour: #333;
+  --background-colour: #fff;
+  --header-colour: #f2f2f2;
+  --ive-colour: #127369;
+
+  /* escala de letras A–G: azules de claro (A, menos agua) a casi morado (G, más
+     agua). A y B son claras y llevan texto oscuro; el resto, texto blanco. */
+  --clase-A: #b3e0f5; --clase-B: #7cc4ea; --clase-C: #47a3d8; --clase-D: #2b7fc0;
+  --clase-E: #2a5ba3; --clase-F: #34408c; --clase-G: #3d2a73;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; font-family: Montserrat, sans-serif; color: var(--text-colour); background: var(--background-colour); line-height: var(--lh); }
+button { font-family: inherit; }
+
+/* ------------------------------------------------------------------ cabecera */
+.header { position: sticky; top: 0; z-index: 1000; height: 75px; background: var(--header-colour); }
+.link-container { height: 25px; display: flex; align-items: center; justify-content: flex-end; line-height: 25px; }
+.contact-link, .ive-link { color: var(--ive-colour); text-decoration: none; font-weight: 500; font-size: 14px; margin-right: 1em; }
+.contact-link:hover, .ive-link:hover { color: color-mix(in srgb, var(--ive-colour) 90%, black); }
+.title-toolbar { display: flex; min-height: 50px; align-items: center; justify-content: space-between; padding: 0 2rem 15px 0; }
+.logo-wrapper { display: flex; align-items: center; gap: .75rem; min-width: 0; padding: 0 3rem; }
+.logo { height: clamp(24px, 4vw, 40px); width: auto; flex: 0 0 auto; }
+.app-title { font-size: clamp(12px, 1.8vw, 18px); font-weight: 700; margin: 0 0 0 .25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.toolbar { display: flex; align-items: center; }
+.icon-button { background: none; border: 0; padding: 0; cursor: pointer; }
+.generate-icon { height: clamp(20px, 4vw, 25px); width: auto; fill: var(--ive-colour); display: block; }
+.icon-button:hover .generate-icon { fill: color-mix(in srgb, var(--ive-colour) 90%, black); }
+
+/* ------------------------------------------------------------------ reparto */
+.layout { display: grid; grid-template-columns: minmax(240px, 25%) 1fr; min-height: calc(100vh - 75px); align-items: start; }
+
+.left-panel {
+  position: sticky; top: 75px; height: calc(100vh - 75px); overflow: hidden;
+  display: grid; grid-template-rows: 55% 45%; margin: 2% 0 0 10%;
+}
+.top-wheel { display: grid; grid-template-rows: auto 1fr auto; justify-items: center; align-items: center; text-align: center; row-gap: .75rem; padding: 6% 10% 2%; min-height: 0; }
+.global-wheel { width: 100%; height: 100%; min-height: 0; }
+.panel-label { font-size: var(--t1); font-weight: 600; width: 80%; }
+.panel-nota { font-size: var(--t4); color: var(--dato-suave); min-height: 2.2em; }
+.bottom-wheels { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: .5rem 1rem; padding: 0 4% 4%; min-height: 0; }
+.mini { display: grid; grid-template-rows: auto 1fr; justify-items: center; text-align: center; min-height: 0; }
+.panel-sublabel { font-size: var(--t3); font-weight: 600; line-height: 1.2; }
+.panel-sublabel .unidad { display: block; font-weight: 400; font-size: var(--t4); color: var(--dato-suave); }
+.secondary-wheel { width: 100%; height: 100%; min-height: 0; }
+
+.right-panel { min-width: 0; }
+
+/* ------------------------------------------------------------------ rueda */
+/* la rueda ocupa todo su hueco: se posiciona en absoluto para que el contenedor de
+   tamaño (container-type: size) tenga alto definido aunque el hueco venga de una rejilla */
+.global-wheel, .secondary-wheel, .progress { position: relative; }
+.wheel { position: absolute; inset: 0; display: grid; container-type: size; }
+.secondary-wheel .wheel { inset: .25rem 12%; }
+.wheel .circle { position: relative; width: min(100cqw, 100cqh); height: min(100cqw, 100cqh); margin: auto; }
+.wheel svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.wheel .label { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-weight: 600; color: #1f1f1f; pointer-events: none; font-size: 17.5cqmin; white-space: nowrap; text-align: center; line-height: 1; }
+.wheel .label small { display: block; font-size: .42em; font-weight: 500; color: var(--dato-suave); margin-top: .3em; }
+.wheel.de-letra .label { font-size: 34cqmin; }
+.wheel.de-letra .label small { font-size: .3em; }
+.wheel.pendiente .label { font-size: 9cqmin; font-weight: 500; color: var(--dato-suave); }
+
+/* ------------------------------------------------------------------ secciones */
+/* La estructura (bordes, separadores, flecha) es neutra: el azul queda para lo editable. */
+.section { padding: 2% 5%; }
+.section-border { border: 1px solid var(--linea); border-radius: 4px; }
+.section-header { display: grid; grid-template-columns: 40% 15% 20% 20% 5%; align-items: center; border-bottom: 1px solid var(--linea); cursor: pointer; user-select: none; }
+.section-header .title { font-weight: 600; padding: 10px 14px; font-size: var(--t1); }
+.section-header .h1 { grid-column: 3; text-align: center; font-size: var(--t4); color: var(--dato-suave); }
+.section-header .h2 { grid-column: 4; text-align: center; font-size: var(--t4); color: var(--dato-suave); }
+.section-header .toggle { grid-column: 5; text-align: center; }
+.arrow { width: 60%; aspect-ratio: 1; fill: none; stroke: var(--dato-suave); stroke-width: 2; transition: transform .25s ease; transform: rotate(-180deg); }
+.section:not(.abierta) .section-header .arrow { transform: rotate(0deg); }
+
+.section-contents { display: grid; grid-template-columns: 52.5% 20% 20% 5%; transition: grid-template-columns .4s ease; margin: 1% 0 1% 2.5%; }
+.section.abierta .section-contents { grid-template-columns: 92.5% 0% 0% 0%; }
+.section-body { grid-column: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+/* las ruedas de sección van arriba, no centradas: con quince aparatos el centro queda
+   fuera de la pantalla */
+.wheel-col { display: flex; justify-content: center; align-items: flex-start; padding-top: 1.5rem; overflow: hidden; }
+.wheel-col .progress { width: 55%; aspect-ratio: 1; }
+.section.abierta .wheel-col { visibility: hidden; }
+
+/* ------------------------------------------------------------------ subsecciones */
+.sub { margin-top: 2%; padding: 0 0 2% .5%; border-bottom: 1px dotted var(--linea); display: grid; grid-template-columns: 100%; }
+.sub:last-child { border-bottom: none; }
+.section.abierta .sub { grid-template-columns: 56% 22% 22%; border-bottom: 1px solid var(--linea-suave); }
+.section.abierta .sub:last-child { border-bottom: none; }
+.sub-header { display: grid; grid-template-columns: 70% 10% 20%; padding: 3% 2% 1% 0; align-items: center; }
+.section.abierta .sub-header { grid-template-columns: 60% 6% 34%; }
+.sub-title { grid-column: 1; font-weight: 600; font-size: var(--t2); min-width: 0; overflow-wrap: anywhere; }
+.sub-title .info { vertical-align: -.15em; }
+.sub-title .num { margin-right: .35em; }
+.sub-slot { grid-column: 3; display: grid; align-items: center; justify-items: start; min-height: 2.5rem; }
+.sub-value { font-size: var(--t3); color: var(--dato-texto); display: flex; align-items: center; min-height: 2.5rem; }
+.sub-res { display: none; align-items: center; justify-content: center; text-align: center; grid-row: 1 / span 99; font-size: var(--t3); color: var(--dato-texto); }
+.section.abierta .sub-res { display: flex; flex-direction: column; }
+.sub-res small { font-size: var(--t4); color: var(--dato-suave); }
+.sub-res.r1 { grid-column: 2; }
+.sub-res.r2 { grid-column: 3; }
+.sub-body { grid-column: 1; margin: 0 0 0 1.4rem; display: none; }
+.section.abierta .sub-body { display: block; animation: flow .26s ease-in-out; }
+.section.abierta .sub-slot .sub-value { display: none; }
+.section:not(.abierta) .sub-slot .ctrl { display: none; }
+.sub.apagado .sub-body > :not(.apagado-texto) { display: none; }
+.sub.apagado .sub-res { color: #aaa; }
+@keyframes flow { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+.campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; align-items: start; padding: .4rem 0 .8rem; }
+.campos.dos { grid-template-columns: repeat(2, minmax(0, 15rem)); }
+.apagado-texto { font-size: var(--t3); color: var(--dato-suave); font-style: italic; padding: .3rem 0 .6rem; }
+.sub:not(.apagado) .apagado-texto { display: none; }
+.pendiente-texto { font-size: var(--t4); color: var(--dato-suave); font-style: italic; }
+
+/* ------------------------------------------------------------------ títulos de grupo y textos */
+/* altura fija (1.9rem) para que dos títulos en paralelo queden alineados aunque uno
+   lleve un indicador a la derecha */
+.grupo-titulo { font-size: var(--t3); font-weight: 600; margin: 0 0 .5rem; min-height: 1.9rem; display: flex; align-items: center; gap: .3rem; }
+.grupo-extra { margin-left: auto; display: flex; align-items: center; }
+.indicador { display: flex; align-items: center; gap: .45rem; }
+.indicador-nombre { font-size: var(--t4); font-weight: 500; color: var(--dato-suave); }
+.indicador .tramo { font-size: var(--t3); padding: .2em .8em; }
+.tramo::before { content: ""; display: inline-block; width: .55em; height: .55em; border-radius: 50%; background: currentColor; margin-right: .45em; vertical-align: .05em; }
+
+/* mini resumen de una subsección plegada */
+.resumen { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .3rem 0; font-size: var(--t3); color: var(--dato-suave); }
+.resumen > * { padding: 0 .75rem; }
+.resumen > * + * { border-left: 1px solid var(--linea); }
+.resumen > :last-child { padding-right: 0; }
+.resumen strong { color: var(--dato-texto); font-weight: 600; }
+.resumen .tramo { margin-left: .75rem; border-left: 0; }
+.resumen .pieza + .tramo { border-left: 0; }
+.grupo-titulo.editable { color: var(--editable); }
+.grupo-titulo.dato { color: var(--dato-texto); }
+.explica { font-size: var(--t3); color: var(--dato-suave); margin: 0 0 1rem; max-width: 60em; }
+.bloque { padding-top: 1.2rem; }
+
+/* ------------------------------------------------------------------ campos (azul = editable) */
+.field { position: relative; display: flex; flex-direction: column; min-width: 0; }
+.field .etq { font-size: var(--t3); color: var(--editable-texto); margin-bottom: .3rem; min-height: 1.4em; display: flex; align-items: center; gap: .1rem; }
+.field .caja { position: relative; }
+.field input, .field select {
+  width: 100%; height: 2.5rem; padding: .5rem .6rem; font: inherit; font-size: var(--t2);
+  border: 1px solid var(--editable-borde); border-radius: 4px; background: var(--editable-fondo); color: var(--editable-texto);
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.field select { cursor: pointer; }
+.field input:hover, .field select:hover, .field input:focus, .field select:focus { border-color: var(--editable); outline: none; }
+.field input:focus, .field select:focus { background: var(--background-colour); box-shadow: 0 0 0 2px color-mix(in srgb, var(--editable) 20%, transparent); }
+.field .unidad { position: absolute; right: .6rem; top: 50%; transform: translateY(-50%); font-size: var(--t4); color: var(--dato-suave); pointer-events: none; }
+.field .caja.con-unidad input { padding-right: 4.8rem; }
+.field .error { font-size: var(--t4); color: var(--aviso-colour); min-height: 0; }
+.field .error:empty { display: none; }
+/* gris = dato que no se toca */
+.field.lectura-only .etq { color: var(--dato-suave); }
+.field.lectura-only input { background: var(--dato-fondo); border-color: var(--dato-fondo); color: var(--dato-texto); cursor: default; box-shadow: none; }
+/* ámbar = valor del proyectista */
+.field.modificado input { border-color: var(--aviso-colour); background: color-mix(in srgb, var(--aviso-colour) 8%, white); }
+.field.grande select { height: 3rem; font-size: var(--t1); font-weight: 600; }
+
+/* contador − n + (editable) */
+.contador { display: inline-grid; grid-template-columns: 2.2rem 3.2rem 2.2rem; height: 2.5rem; border: 1px solid var(--editable-borde); border-radius: 4px; overflow: hidden; background: var(--editable-fondo); }
+.field > .contador { align-self: flex-start; }
+/* valor fijo con forma de contador, en gris: «1 vivienda» de la unifamiliar */
+.contador.fijo { background: var(--dato-fondo); border-color: var(--dato-fondo); grid-template-columns: 7.6rem; place-items: center; font-size: var(--t2); font-weight: 600; color: var(--dato-texto); }
+.contador.fijo:hover { border-color: var(--dato-fondo); }
+.contador:focus-within, .contador:hover { border-color: var(--editable); }
+.contador button { border: 0; background: transparent; color: var(--editable); font-size: 1.1rem; cursor: pointer; }
+.contador button:hover { background: color-mix(in srgb, var(--editable) 15%, white); }
+.contador input { border: 0; background: transparent; text-align: center; font: inherit; font-size: var(--t2); font-weight: 600; color: var(--editable-texto); min-width: 0; }
+.contador input:focus { outline: none; }
+
+/* tarjetas de elección (tipo de edificio y similares) */
+.tarjetas { display: grid; grid-template-columns: repeat(2, minmax(0, 17rem)); gap: .8rem; }
+.tarjeta { position: relative; display: grid; grid-template-columns: 3rem 1fr; gap: .8rem; align-items: center; text-align: left; padding: .8rem 1rem; border: 1px solid var(--editable-borde); border-radius: 6px; background: var(--background-colour); color: var(--dato-suave); cursor: pointer; transition: border-color .15s, background-color .15s, color .15s; }
+.tarjeta:hover { border-color: var(--editable); background: var(--editable-fondo); }
+.tarjeta[aria-checked="true"] { border: 2px solid var(--editable); padding: calc(.8rem - 1px) calc(1rem - 1px); background: var(--editable-fondo); color: var(--editable); }
+.tarjeta-icono svg { width: 3rem; height: 3rem; display: block; }
+.tarjeta-texto { display: flex; flex-direction: column; gap: .15rem; }
+.tarjeta-texto strong { font-size: var(--t2); font-weight: 600; color: var(--editable-texto); }
+.tarjeta-texto span { font-size: var(--t3); }
+.tarjeta-check { position: absolute; top: .5rem; right: .5rem; width: 1.1rem; height: 1.1rem; border-radius: 50%; border: 1px solid var(--editable-borde); background: var(--background-colour); }
+.tarjeta[aria-checked="true"] .tarjeta-check { border-color: var(--editable); background: var(--editable) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpolyline points='1 5.5 4.5 9 11 1' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E") center / 60% no-repeat; }
+
+/* opciones (bullet) y casillas: editables, en azul */
+.menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: .5em; }
+.menu.vertical { grid-template-columns: 1fr; }
+.opcion { display: grid; grid-template-columns: auto 1fr; gap: .5em; align-items: center; user-select: none; cursor: pointer; --hover: var(--background-colour); font-size: var(--t3); color: var(--editable-texto); }
+.opcion:hover { --hover: color-mix(in srgb, var(--editable) 20%, var(--background-colour)); }
+.opcion .bullet { width: 20px; height: 20px; }
+.opcion .bullet circle { fill: var(--hover); stroke: var(--editable-borde); transition: fill .15s ease; }
+.opcion[aria-checked="true"] .bullet circle { fill: var(--editable); stroke: var(--editable); }
+.opcion .box { width: 18px; height: 18px; border: 1px solid var(--editable-borde); border-radius: 4px; display: flex; align-items: center; justify-content: center; background: var(--hover); }
+.opcion[aria-checked="true"] .box { background: var(--editable); border-color: var(--editable); }
+.opcion .box svg { visibility: hidden; }
+.opcion[aria-checked="true"] .box svg { visibility: visible; }
+
+/* ------------------------------------------------------------------ interruptor (editable) */
+.toggle-wrapper { display: flex; align-items: center; margin-top: 1rem; }
+.toggle-label { font-size: var(--t3); color: var(--editable-texto); user-select: none; }
+.switch { margin: .5rem; height: 1.5rem; width: auto; cursor: pointer; background: none; border: 0; padding: 0; }
+.switch svg { height: 100%; width: auto; display: block; }
+.switch .track { fill: #b7bcc1; transition: fill .3s ease; }
+.switch[aria-checked="true"] .track { fill: var(--editable); }
+.switch:hover .track { fill: color-mix(in hsl, var(--editable), #b7bcc1 40%); }
+.switch .thumb { fill: var(--background-colour); transition: cx .3s ease; cx: 12.5; }
+.switch[aria-checked="true"] .thumb { cx: 32.5; }
+
+/* ------------------------------------------------------------------ datos (gris = no se toca) */
+.ficha { background: var(--dato-fondo); border-radius: 4px; padding: .7rem .9rem; color: var(--dato-texto); }
+.letra { display: inline-flex; align-items: center; justify-content: center; min-width: 1.9em; height: 1.6em; padding: 0 .35em; border-radius: 3px; color: #fff; font-weight: 700; font-size: var(--t3); }
+.letra.oscura { color: #1d3f57; }
+.chip { font-size: var(--t4); padding: .1em .5em; border-radius: 1em; background: color-mix(in srgb, var(--aviso-colour) 15%, white); color: #8a5e00; margin-left: .4em; white-space: nowrap; }
+
+/* acciones */
+.btn-sec { margin-top: .8rem; font-size: var(--t3); font-weight: 500; padding: .45rem .9rem; background: var(--background-colour); color: var(--editable); border: 1px dashed var(--editable); border-radius: 4px; cursor: pointer; }
+.btn-sec:hover { background: var(--editable-fondo); }
+.btn-quitar { background: none; border: 0; color: var(--dato-suave); cursor: pointer; font-size: var(--t3); text-decoration: underline; }
+
+/* ayuda ⓘ: neutra, es información y no un dato a rellenar */
+.info { background: none; border: 0; padding: 0; margin-left: .25rem; cursor: pointer; display: inline-flex; line-height: 1; }
+.symbol { fill: #8a9096; }
+.info:hover .symbol { fill: var(--dato-texto); }
+.enlace { background: none; border: 0; padding: 0; color: var(--dato-texto); text-decoration: underline; cursor: pointer; font-size: inherit; }
+.enlace:hover { color: #000; }
+
+/* ------------------------------------------------------------------ ventanas */
+.modal { position: fixed; inset: 0; z-index: 2000; background: #0006; display: flex; justify-content: center; align-items: center; }
+.modal[hidden] { display: none; }
+.modal-window { display: grid; grid-template-rows: auto 1fr; background: var(--background-colour); padding: 2%; border: 1px solid var(--linea); width: max(50%, 300px); max-height: 90%; box-shadow: 0 4px 8px #0003; border-radius: 4px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 0 1%; border-bottom: 1px solid var(--linea); }
+.modal-header-left { display: flex; align-items: center; gap: 1rem; }
+.modal-title { font-size: var(--t1); font-weight: 600; }
+.close { background: none; border: 0; color: var(--ive-colour); font-size: 2rem; font-weight: 700; cursor: pointer; line-height: 1; }
+.modal-content { display: grid; row-gap: 2rem; padding: 2rem 1rem 1rem; }
+.input-fields { display: flex; flex-direction: column; gap: 1.2rem; }
+.input-accept-column { display: flex; flex-direction: column; gap: .5rem; align-items: flex-end; }
+.accept-button { font-size: var(--t2); padding: .5rem 1rem; background: var(--ive-colour); color: var(--background-colour); border: 2px solid var(--ive-colour); border-radius: 4px; cursor: pointer; transition: background-color .15s, color .15s; }
+.accept-button:hover { background: var(--background-colour); color: var(--ive-colour); }
+.accept-error-label { font-size: var(--t3); color: var(--error-colour); min-height: 1.2em; }
+
+.popup-content { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto 1fr; background: var(--background-colour); padding: 20px; border: 1px solid var(--linea); width: min(50%, 48rem); max-height: calc(100vh - 3rem); overflow: auto; box-shadow: 0 4px 8px #0003; border-radius: 4px; }
+.popup-header { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: .8rem; align-items: center; font-size: var(--t1); font-weight: 600; }
+.message-wrapper { padding: 2% 3%; border-top: 1px solid var(--linea); grid-column: 1 / span 2; margin-top: .6rem; }
+.comment { font-size: var(--t3); color: var(--dato-texto); }
+.comment p { margin: .6em 0; }
+.comment .fuente { font-size: var(--t4); color: var(--dato-suave); }
+
+/* ------------------------------------------------------------------ pie */
+.top-footer { padding: 5rem 4rem 3rem; color: var(--background-colour); background: var(--ive-colour); line-height: 1.8; }
+.footer-content { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2rem; }
+.footer-col { display: flex; flex-direction: column; align-items: flex-start; flex: 1 1 0; min-width: 220px; margin: 10px 0; }
+.footer-title { font-weight: 600; font-size: 1.125rem; margin: 0 0 .5rem; line-height: 1.2; }
+.footer-list { font-weight: 300; }
+.footer-link { font-weight: 300; text-decoration: underline; color: inherit; }
+.logo-gva { width: 100%; height: auto; }
+.footer-separated-elems { display: flex; flex-direction: column; justify-content: space-between; min-height: 9rem; font-weight: 300; }
+.social-media-row { display: flex; align-items: center; gap: .25rem; }
+.footer-logo-link { color: inherit; text-decoration: none; }
+.icon-settings { display: inline-flex; align-items: center; justify-content: center; height: 2.5rem; aspect-ratio: 1; font-size: 1.3em; border: 1px solid transparent; border-radius: 50%; transition: border .2s ease; }
+.icon-settings:hover { border-color: var(--background-colour); }
+.bottom-footer { background: #b1b1b0; padding: 1.5rem; }
+.bottom-footer-row { display: flex; flex-wrap: wrap; justify-content: space-around; gap: .5rem 1rem; }
+.bottom-footer-link { color: var(--ive-colour); text-decoration: none; font-size: .875rem; font-weight: 600; }
+.bottom-footer-link:hover { text-decoration: underline; }
+
+/* ------------------------------------------------------------------ sección de datos
+   La sección 1 no lleva ruedas: es de datos de partida, no de resultados. Ocupa todo el
+   ancho y cada subsección organiza su contenido a su manera. */
+.section.de-datos .section-header { grid-template-columns: 1fr 5%; }
+.section.de-datos .section-header .toggle { grid-column: 2; }
+.section.de-datos .section-contents,
+.section.de-datos.abierta .section-contents { grid-template-columns: 95%; }
+.section.de-datos .sub,
+.section.de-datos.abierta .sub { grid-template-columns: 100%; }
+.section.de-datos .sub-header,
+.section.de-datos.abierta .sub-header { grid-template-columns: 1fr auto; padding-right: 0; }
+.section.de-datos .sub-slot { grid-column: 2; }
+.section.de-datos .sub-body { margin-left: 1.4rem; padding-bottom: .4rem; }
+
+/* 1.1 provincia: dos columnas que arrancan con un título del mismo nivel */
+.emplaz { display: grid; grid-template-columns: minmax(220px, 34%) 1fr; gap: 1.2rem 2.5rem; padding-top: 1.2rem; align-items: start; }
+/* etiqueta encima y valor debajo: así caben los nombres largos de demarcación
+   («Gran Canaria, Lanzarote y Fuerteventura») sin descuadrar */
+.geo { display: grid; gap: .55rem; margin: .6rem 0 0; font-size: var(--t3); }
+.geo dt { color: var(--dato-suave); }
+.geo dd { margin: 0; font-weight: 600; }
+.tramo { display: inline-block; white-space: nowrap; padding: .1em .7em; border-radius: 1em; font-size: var(--t4); font-weight: 600; }
+.tramo-sin-escasez { background: color-mix(in srgb, var(--clase-A) 45%, white); color: #2b6f99; }
+.tramo-escasez { background: color-mix(in srgb, var(--clase-D) 16%, white); color: var(--clase-E); }
+.tramo-escasez-severa { background: color-mix(in srgb, var(--clase-G) 14%, white); color: var(--clase-G); }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.tile { background: var(--dato-fondo); border-radius: 4px; padding: .55rem .8rem; min-height: 3rem; }
+.tile-nombre { font-size: var(--t3); color: var(--dato-suave); display: flex; justify-content: space-between; align-items: center; gap: .4rem; }
+.tile-nombre .info { margin: 0; }
+.tile-valor { font-size: var(--t1); font-weight: 600; color: var(--dato-texto); margin-top: .15rem; }
+.tile-valor span { font-size: var(--t4); font-weight: 400; color: var(--dato-suave); }
+.clima-pie { font-size: var(--t4); color: var(--dato-suave); margin-top: .6rem; display: flex; flex-wrap: wrap; gap: .3rem .8rem; }
+.tabla-meses { overflow-x: auto; }
+.tabla-meses table { border-collapse: collapse; font-size: var(--t4); color: var(--dato-texto); width: 100%; }
+.tabla-meses th, .tabla-meses td { padding: .3em .25em; text-align: right; border-bottom: 1px solid var(--linea-suave); }
+.tabla-meses th:first-child { text-align: left; font-weight: 500; white-space: nowrap; }
+
+/* 1.2 uso y ocupación */
+.fila-uni { display: grid; grid-template-columns: minmax(200px, 22rem) auto; gap: 1rem 1.5rem; align-items: start; }
+.con-titulo { display: flex; flex-direction: column; gap: .3rem; }
+.mini-label { font-size: var(--t3); color: var(--editable-texto); }
+.tipos { display: grid; gap: .3rem; }
+.tipos-cab, .tipo-fila { display: grid; grid-template-columns: minmax(180px, 1fr) 7.6rem 7.6rem 5rem 2rem; gap: .8rem; align-items: center; }
+.tipos-cab { font-size: var(--t4); color: var(--dato-suave); }
+.tipos-cab .editable { color: var(--editable-texto); }
+.tipos-cab span:nth-child(n+2):nth-child(-n+4) { text-align: center; }
+.tipo-fila { padding: .35rem 0; border-bottom: 1px dotted var(--linea); }
+.tipo-fila .field .etq { display: none; }
+.tipo-fila .con-titulo { align-items: center; }
+.personas { text-align: center; font-weight: 600; font-size: var(--t2); color: var(--dato-texto); }
+.quitar { background: none; border: 0; font-size: 1.4rem; line-height: 1; color: var(--dato-suave); cursor: pointer; }
+.quitar:hover:not(:disabled) { color: var(--error-colour); }
+.quitar:disabled { opacity: .25; cursor: default; }
+.tipos-total { display: flex; flex-wrap: wrap; gap: .4rem 1.4rem; align-items: baseline; font-size: var(--t3); padding: .55rem .9rem; margin-top: .3rem; background: var(--dato-fondo); color: var(--dato-texto); border-radius: 4px; }
+.tipos-total span:last-child { font-size: var(--t4); color: var(--dato-suave); }
+.solo-movil { display: none; }
+
+/* ------------------------------------------------------------------ subsección ancha
+   Al abrirla ocupa todo el ancho: lleva sus resultados dentro, en tabla. */
+.sub.ancha .sub-header,
+.section.abierta .sub.ancha .sub-header { grid-template-columns: auto 1fr; padding-right: 0; gap: 1rem; }
+.sub.ancha .sub-slot { grid-column: 2; justify-items: end; }
+.section.abierta .sub.ancha { grid-template-columns: 100%; }
+.section.abierta .sub.ancha .sub-res { display: none; }
+.section.abierta .sub.ancha .sub-slot .sub-value { display: flex; }
+
+/* ------------------------------------------------------------------ 2 · aparatos en tiras */
+.tiras { display: grid; }
+.tira { display: grid; grid-template-columns: minmax(7rem, 1fr) 7.5rem 7.5rem 8.5rem 6.5rem 5rem 1.6rem; gap: .5rem; align-items: center; padding: .45rem 0; border-bottom: 1px dotted var(--linea); }
+.tira:last-child { border-bottom: 0; }
+.tira-cab { font-size: var(--t4); color: var(--dato-suave); padding-top: 0; border-bottom: 1px solid var(--linea-suave); }
+.tira-cab .editable { color: var(--editable-texto); }
+.tira-cab .der { text-align: right; }
+.tira-nombre { font-size: var(--t3); font-weight: 600; color: var(--dato-texto); min-width: 0; }
+.tira-nombre .info { vertical-align: -.15em; }
+.tira-dato { text-align: right; font-size: var(--t3); color: var(--dato-texto); white-space: nowrap; }
+.tira-dato small { font-size: var(--t4); color: var(--dato-suave); }
+.tira .quitar { font-size: 1.2rem; }
+.sin-escala { font-size: var(--t4); color: var(--dato-suave); }
+
+/* caja de número compacta (azul editable, ámbar modificada, gris automática) */
+.num-caja { position: relative; }
+.num-caja input { width: 100%; height: 2.2rem; padding: .3rem 2.4rem .3rem .5rem; font: inherit; font-size: var(--t2); border: 1px solid var(--editable-borde); border-radius: 4px; background: var(--editable-fondo); color: var(--editable-texto); }
+.num-caja input:hover, .num-caja input:focus { border-color: var(--editable); outline: none; }
+.num-caja input:focus { background: var(--background-colour); box-shadow: 0 0 0 2px color-mix(in srgb, var(--editable) 20%, transparent); }
+.num-caja .unidad { position: absolute; right: .45rem; top: 50%; transform: translateY(-50%); font-size: var(--t4); color: var(--dato-suave); pointer-events: none; white-space: nowrap; }
+.num-caja.modificado input { border-color: var(--aviso-colour); background: color-mix(in srgb, var(--aviso-colour) 8%, white); }
+.num-caja.error input { border-color: var(--error-colour); }
+.num-caja.fijo { display: flex; align-items: center; height: 2.2rem; padding: 0 2.4rem 0 .5rem; border-radius: 4px; background: var(--dato-fondo); font-size: var(--t2); color: var(--dato-texto); }
+.doble { display: grid; grid-template-columns: 1fr 1fr; gap: .25rem; }
+.doble .num-caja input { padding-right: 1.5rem; padding-left: .4rem; }
+.doble .num-caja .unidad { right: .3rem; }
+.base { display: grid; grid-template-columns: 1fr; gap: .25rem; }
+.base:has(.num-caja) { grid-template-columns: 1fr 3.9rem; }
+.base .num-caja input { padding-right: 1.9rem; }
+.base select { width: 100%; height: 2.2rem; padding: .2rem .4rem; font: inherit; font-size: var(--t3); border: 1px solid var(--editable-borde); border-radius: 4px; background: var(--editable-fondo); color: var(--editable-texto); cursor: pointer; }
+.base select:hover, .base select:focus { border-color: var(--editable); outline: none; }
+
+.anadir { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; padding: .7rem 0 .2rem; }
+.anadir-txt { font-size: var(--t3); color: var(--dato-suave); margin-right: .2rem; }
+.btn-sec.chip-add { margin: 0; padding: .3rem .7rem; font-size: var(--t3); }
+
+.aparatos-pie { padding: 1rem 0 .4rem 1.4rem; }
+.resumen-consumo { display: flex; flex-wrap: wrap; gap: .6rem 2rem; align-items: flex-end; }
+.rc-item { display: flex; flex-direction: column; gap: .15rem; font-size: var(--t4); color: var(--dato-suave); }
+.rc-item strong { font-size: var(--t2); color: var(--dato-texto); }
+.rc-clase .rc-letra { display: flex; align-items: center; gap: .3rem; min-height: 1.4rem; }
+.leyenda { font-size: var(--t4); color: var(--dato-suave); display: flex; align-items: center; gap: .4rem; margin: .7rem 0 0; }
+.muestra { width: 1.4rem; height: .9rem; border-radius: 3px; border: 1px solid var(--aviso-colour); background: color-mix(in srgb, var(--aviso-colour) 8%, white); }
+
+.informe { display: none; }
+
+/* ------------------------------------------------------------------ móvil */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; row-gap: 2rem; }
+  .left-panel { position: static; height: auto; margin: 1rem 0 0; grid-template-rows: auto auto; }
+  .global-wheel { height: 200px; }
+  .bottom-wheels { grid-template-columns: repeat(4, 1fr); grid-template-rows: auto; }
+  .mini { grid-template-rows: 2.6em 80px; align-items: end; }
+  .secondary-wheel { height: 80px; }
+  .title-toolbar { padding-left: .5rem; }
+  .logo-wrapper { padding: 0 1rem; }
+  .section { padding: 2% 16px; }
+  .section-header { grid-template-columns: 1fr 22% 22% 10%; }
+  .section-header .title { grid-column: 1; }
+  .section-header .h1 { grid-column: 2; }
+  .section-header .h2 { grid-column: 3; }
+  .section-header .toggle { grid-column: 4; }
+  .section-contents { grid-template-columns: 56% 20% 20% 4%; margin-left: 2%; }
+  .section.abierta .sub { grid-template-columns: 1fr; }
+  .section.abierta .sub-res { grid-row: auto; grid-column: 1; flex-direction: row; gap: .5rem; justify-content: flex-start; padding-top: .4rem; }
+  .section.abierta .sub-header { grid-template-columns: 1fr 1fr; }
+  .sub-slot { grid-column: 2; }
+  .popup-content { width: min(90%, 48rem); }
+  .section.de-datos .section-header { grid-template-columns: 1fr 10%; }
+  .section.de-datos .sub-body { margin-left: 0; }
+  .emplaz { grid-template-columns: 1fr; }
+  .tarjetas { grid-template-columns: 1fr; }
+  .fila-uni, .campos.dos { grid-template-columns: 1fr; }
+  .tipos-cab { display: none; }
+  .tipo-fila { grid-template-columns: 1fr 1fr 2rem; grid-template-areas: "tipo tipo quitar" "viv ocu ocu" "pers pers pers"; padding: .8rem 0; }
+  .tipo-fila > :nth-child(1) { grid-area: tipo; }
+  .tipo-fila > :nth-child(2) { grid-area: viv; }
+  .tipo-fila > :nth-child(3) { grid-area: ocu; }
+  .tipo-fila > :nth-child(4) { grid-area: pers; text-align: left; font-weight: 500; font-size: var(--t3); }
+  .tipo-fila > :nth-child(4)::after { content: " personas"; }
+  .tipo-fila > :nth-child(5) { grid-area: quitar; }
+  .tipo-fila .con-titulo { align-items: flex-start; }
+  .mini-label.solo-movil { display: block; }
+  /* tiras de aparatos: cada aparato pasa a ficha, con la etiqueta de columna encima */
+  .tira-cab { display: none; }
+  .tira { grid-template-columns: 1fr 1fr; grid-template-areas: "nom quitar" "c1 c2" "c3 c3" "d1 d2"; gap: .5rem .6rem; padding: .8rem 0; }
+  .tira-nombre { grid-area: nom; }
+  .tira .quitar { grid-area: quitar; justify-self: end; }
+  .tira > :nth-child(2) { grid-area: c1; }
+  .tira > :nth-child(3) { grid-area: c2; }
+  .tira > :nth-child(4) { grid-area: c3; }
+  .tira > :nth-child(5) { grid-area: d1; text-align: left; }
+  .tira > :nth-child(6) { grid-area: d2; text-align: left; }
+  .tira [data-col]::before { content: attr(data-col); display: block; font-size: var(--t4); color: var(--dato-suave); margin-bottom: .2rem; }
+  .tira .tira-celda[data-col]::before { color: var(--editable-texto); }
+  .aparatos-pie { padding-left: 0; }
+  .top-footer { padding: 3rem 16px 2rem; }
+}
+
+/* ------------------------------------------------------------------ informe impreso
+ * Una sola hoja A4 (js/informe.js) con todos los resúmenes y gráficas: base de pruebas
+ * sobre la que ir añadiendo. Bloques en rejilla, sin rayas ni cajas; títulos en verde
+ * IVE. Fuente de sistema (Calibri): Montserrat incrustada salía mal en Acrobat. */
+@media print {
+  /* Informe de una página: identificación arriba, sin caja,
+     la rueda de la clase en el centro y las cuatro pequeñas debajo. */
+  @page { size: A4 portrait; margin: 12mm 14mm; }
+  html, body { background: #fff !important; }
+  body > *:not(.informe) { display: none !important; }
+  .informe { display: block; font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif; font-size: 9pt; line-height: 1.3; color: #2b2f33;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .i-hoja { height: 271mm; display: flex; flex-direction: column; overflow: hidden; }
+
+  .i-cab { padding-bottom: 5mm; border-bottom: .3mm solid #e3e6e9; }
+  .i-logo { height: 9mm; width: auto; display: block; margin-bottom: 6mm; }
+  .i-cab-tipo { margin: 0; font-size: 9pt; color: #2f7aa6; }
+  .i-cab-nombre { margin: .5mm 0 1.5mm; font-size: 18pt; font-weight: 700; line-height: 1.15; color: #1d3f57; }
+  .i-cab-datos { margin: 0; font-size: 9.5pt; color: #5a6670; }
+
+  .i-principal { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .i-principal h2, .i-peq h3 { margin: 0; color: #1d5a80; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .i-principal h2 { font-size: 13pt; margin-bottom: 6mm; }
+  .i-rueda-grande svg { width: 90mm; height: 90mm; display: block; }
+  .i-cifra { font-size: 11pt; margin: 6mm 0 1mm; } .i-cifra b { font-size: 16pt; }
+  .i-nota { font-size: 8pt; color: #6b7177; max-width: 120mm; margin: 0; }
+
+  .i-cuatro { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6mm; padding: 7mm 0 8mm; border-top: .3mm solid #e3e6e9; }
+  .i-peq { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2.5mm; }
+  .i-peq h3 { font-size: 9.5pt; }
+  .i-peq svg { width: 32mm; height: 32mm; display: block; }
+  .i-peq p { margin: 0; font-size: 8pt; color: #6b7177; }
+
+  .informe svg .r-c { font-family: Calibri, Carlito, Arial, sans-serif; font-weight: 700; font-size: 26px; fill: #2b2f33; }
+  .informe svg .r-s { font-family: Calibri, Carlito, Arial, sans-serif; font-size: 8px; fill: #6b7177; }
+  .i-peq svg .r-c { font-size: 24px; }
+  .informe svg.vacia .r-c { fill: #b9c3cc; }
+
+  .i-pie { font-size: 7pt; color: #8a949c; border-top: .3mm solid #e3e6e9; padding-top: 2.5mm; }
+}
+
+/* el total de aparatos solo se ve al abrir: plegada, lo dicen las ruedas */
+.section:not(.abierta) .aparatos-pie { display: none; }
+
+/* con la sección abierta las ruedas se ocultan: sus cabeceras también */
+.section.abierta .section-header .h1,
+.section.abierta .section-header .h2 { visibility: hidden; }
+
+/* 2 · aparatos: columna «se aplica a» (dato gris) y bloque del inodoro */
+.tira-dato.izq { text-align: left; }
+.aplica { font-size: var(--t3); color: var(--dato-suave); }
+.aplica strong { color: var(--dato-texto); font-weight: 600; }
+.tira-cab span { display: flex; align-items: center; gap: .1rem; }
+.tira-cab .der { justify-content: flex-end; }
+.tira-bloque { border-bottom: 1px dotted var(--linea); }
+.tira-bloque .tira { border-bottom: 0; }
+.tira-titulo { padding-bottom: .1rem; }
+.tira-titulo .tira-tipo { grid-column: 2 / span 5; }
+.tira-sub { padding-top: .25rem; padding-bottom: .25rem; }
+.tira-sub .tira-nombre { font-weight: 400; color: var(--dato-suave); padding-left: .9rem; position: relative; }
+.tira-sub .tira-nombre::before { content: ""; position: absolute; left: .2rem; top: -.4rem; bottom: 50%; width: .45rem; border-left: 1px solid var(--linea); border-bottom: 1px solid var(--linea); }
+.tira-bloque .tira-sub:last-child { padding-bottom: .5rem; }
+
+/* selector en pastillas (editable, azul) */
+.segmentado { display: inline-flex; border: 1px solid var(--editable-borde); border-radius: 4px; overflow: hidden; }
+.segmentado button { border: 0; background: var(--background-colour); color: var(--editable-texto); font-size: var(--t3); padding: .35rem .8rem; cursor: pointer; }
+.segmentado button + button { border-left: 1px solid var(--editable-borde); }
+.segmentado button:hover { background: var(--editable-fondo); }
+.segmentado button[aria-checked="true"] { background: var(--editable); color: #fff; font-weight: 600; }
+
+/* restaurar: pequeño y discreto, a la derecha de la leyenda */
+.leyenda .restaurar { margin-left: auto; font-size: var(--t4); color: var(--dato-suave); }
+.confirmar-botones { display: flex; justify-content: flex-end; gap: .6rem; margin-top: 1.2rem; }
+.confirmar-botones .btn-sec { margin: 0; border-style: solid; }
+
+@media (max-width: 900px) {
+  .tira-titulo { grid-template-areas: "nom quitar" "tipo tipo"; }
+  .tira-titulo .tira-tipo { grid-area: tipo; }
+  .tira-titulo .quitar { grid-area: quitar; }
+}
+
+/* ------------------------------------------------------------------ sección inactiva
+   El proyecto no tiene ese bloque: ni ruedas ni cabeceras de ruedas. Plegada solo
+   enseña el título; abierta, el interruptor para activarla. */
+.section.inactiva .section-header .h1,
+.section.inactiva .section-header .h2,
+.section.inactiva .wheel-col { display: none; }
+.section.inactiva .section-contents,
+.section.inactiva.abierta .section-contents { grid-template-columns: 95%; }
+.section.inactiva:not(.abierta) .section-contents { display: none; }
+.section.inactiva:not(.abierta) .section-header { border-bottom: 0; }
+.no-incluido { margin-left: .8rem; font-size: var(--t4); font-weight: 500; color: var(--dato-suave); background: var(--dato-fondo); padding: .15em .6em; border-radius: 1em; vertical-align: .1em; }
+.wheel.sin-bloque .label { font-size: 22cqmin; color: var(--dato-suave); }
+.section.inactiva .toggle-wrapper { margin: .4rem 0 .6rem; }
+
+/* ------------------------------------------------------------------ 3 · riego en tiras */
+.tira.tira-zona { grid-template-columns: minmax(5rem, 1fr) 5.6rem 6.2rem 5rem 5.4rem 5rem 7.2rem 5.4rem 1.4rem; gap: .35rem; }
+.txt-tira, .sel-tira { width: 100%; height: 2.2rem; padding: .3rem .45rem; font: inherit; font-size: var(--t3); border: 1px solid var(--editable-borde); border-radius: 4px; background: var(--editable-fondo); color: var(--editable-texto); }
+.sel-tira { cursor: pointer; padding-right: .2rem; }
+.txt-tira::placeholder { color: var(--editable-texto); opacity: .75; }
+.txt-tira:hover, .txt-tira:focus, .sel-tira:hover, .sel-tira:focus { border-color: var(--editable); outline: none; }
+.tira-zona .num-caja input { padding-right: 1.9rem; }
+.tabla-meses th small { font-weight: 400; color: var(--dato-suave); }
+
+@media (max-width: 900px) {
+  .tira.tira-zona { grid-template-columns: 1fr 1fr; grid-template-areas: none; }
+  .tira.tira-zona > * { grid-area: auto; }
+  .tira.tira-zona > :first-child { grid-column: 1 / -1; }
+  .tira.tira-zona .quitar { grid-column: 2; justify-self: end; }
+}
+
+/* Plegada, toda subsección es «título · resumen a la derecha». Las dos columnas de
+   valores solo existen con la sección abierta. */
+.sub-header { grid-template-columns: minmax(0, auto) 1fr; gap: 1rem; }
+.sub-slot { grid-column: 2; justify-items: end; }
+.section.abierta .sub-header { grid-template-columns: 60% 6% 34%; gap: 0; }
+.section.abierta .sub-slot { grid-column: 3; justify-items: start; }
+.section.abierta .sub.ancha .sub-header { grid-template-columns: auto 1fr; gap: 1rem; }
+.section.abierta .sub.ancha .sub-slot,
+.section.de-datos.abierta .sub-slot { grid-column: 2; justify-items: end; }
+.section.de-datos.abierta .sub-header { grid-template-columns: 1fr auto; gap: 1rem; }
+
+/* ------------------------------------------------------------------ 4 y 5: filas de campos
+   Una fila de campos alineados por la caja (align-items: end): si una etiqueta ocupa
+   dos líneas crece hacia arriba y las cajas siguen a la misma altura. */
+.fila-campos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; align-items: end; padding: .4rem 0 .2rem; }
+.bloque-corto { padding-top: 1rem; }
+.bloque-corto .grupo-titulo { margin-bottom: .4rem; }
+.segmentado { flex-wrap: wrap; }
+
+/* casillas en línea; las que no aplican al proyecto, apagadas y con el motivo */
+.menu.en-linea { display: flex; flex-wrap: wrap; gap: .5rem 1.6rem; }
+.opcion small { color: var(--dato-suave); font-size: var(--t4); }
+.opcion.no-aplica { cursor: default; color: var(--dato-suave); }
+.opcion.no-aplica .box { background: var(--dato-fondo); border-color: var(--linea); }
+.opcion.no-aplica:hover { --hover: var(--dato-fondo); }
+
+/* meses de temporada de la piscina: dato que sale de los dos desplegables */
+.meses-strip { display: grid; grid-template-columns: repeat(12, minmax(0, 2.2rem)); gap: .25rem; padding: .7rem 0 0; }
+.meses-strip span { text-align: center; font-size: var(--t4); font-weight: 600; padding: .25rem 0; border-radius: 3px; background: var(--dato-fondo); color: var(--dato-suave); }
+.meses-strip span.en-temporada { background: var(--dato-suave); color: #fff; }
+
+/* balance mensual del depósito */
+.grafico-np { padding: 1rem 0 .3rem; max-width: 40rem; }
+.grafico-np svg { width: 100%; height: auto; display: block; }
+.grafico-np .eje { stroke: var(--linea); }
+.grafico-np .g-dem { fill: var(--dato-fondo); stroke: var(--linea); }
+.grafico-np .g-apr { fill: var(--clase-C); }
+.grafico-np .g-of { fill: none; stroke: var(--clase-F); stroke-width: 2; }
+.grafico-np .g-of-p { fill: var(--clase-F); }
+.grafico-np .g-mes { font-size: 10px; fill: var(--dato-suave); text-anchor: middle; font-family: Montserrat, sans-serif; }
+.g-leyenda { display: flex; flex-wrap: wrap; gap: .3rem 1.2rem; font-size: var(--t4); color: var(--dato-suave); margin-top: .3rem; align-items: center; }
+.g-leyenda i { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; margin-right: .35rem; vertical-align: -.1em; }
+.g-leyenda .l-dem { background: var(--dato-fondo); border: 1px solid var(--linea); }
+.g-leyenda .l-apr { background: var(--clase-C); }
+.g-leyenda .l-of { background: var(--clase-F); height: 2px; vertical-align: .25em; }
+.g-leyenda .g-unid { margin-left: auto; }
+
+@media (max-width: 900px) {
+  .fila-campos { grid-template-columns: 1fr 1fr; }
+  .meses-strip { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+}
+
+/* abierta, el resumen y el interruptor de la subsección van en la misma línea */
+.section.abierta .sub.ancha .sub-slot { display: flex; align-items: center; justify-content: flex-end; gap: 1rem; }
+
+/* ================================================================== revisión de uso
+   Cabecera de sección: título a la izquierda con sus interruptores, y las columnas de
+   las ruedas alineadas con las ruedas de debajo (empiezan al 55 %). */
+.section-header { grid-template-columns: minmax(0, 1fr) 20% 20% 5%; }
+.section-header .h1 { grid-column: 2; }
+.section-header .h2 { grid-column: 3; }
+.section-header .toggle { grid-column: 4; }
+.section-header .title { display: flex; align-items: center; flex-wrap: wrap; gap: .3rem .8rem; }
+.no-incluido { margin-left: 0; }
+
+/* interruptores de las secciones opcionales, en la cabecera */
+.sec-switches { display: inline-flex; flex-wrap: wrap; gap: .3rem 1rem; order: -1; }
+.section .title .sec-switches:has(.sec-switch span) { order: 0; }
+.sec-switch { display: inline-flex; align-items: center; gap: .1rem; cursor: pointer; font-size: var(--t3); font-weight: 500; color: var(--editable-texto); }
+.sec-switch .switch { margin: 0 .3rem 0 0; height: 1.35rem; }
+.pista { font-size: var(--t3); color: var(--dato-suave); font-style: italic; margin: .3rem 0 .5rem; }
+
+/* menos aire: secciones, subsecciones y cabeceras más compactas */
+.section { padding: .55rem 4%; }
+.section-contents { margin: .3rem 0 .5rem 2.5%; }
+.sub { margin-top: .2rem; padding: 0 0 .5rem .5%; }
+.sub-header, .section.abierta .sub-header { padding: .55rem 0 .25rem; }
+.section.abierta .sub.ancha .sub-header { padding: .55rem 0 .25rem; }
+.aparatos-pie { padding-top: .6rem; }
+.wheel-col { padding-top: .6rem; }
+
+/* panel izquierdo: los bloques no incluidos se apagan */
+.mini.apagada { opacity: .5; }
+.mini.apagada .wheel svg { display: none; }
+.mini.apagada .wheel .circle { border: 2px dashed var(--linea); border-radius: 50%; }
+.mini.apagada .panel-sublabel { color: var(--dato-suave); }
+/* y todas las ruedas llevan a su sección */
+.enlazada { cursor: pointer; }
+.enlazada .wheel .circle { transition: transform .15s ease; }
+.enlazada:hover .wheel .circle, .enlazada:focus-visible .wheel .circle { transform: scale(1.05); }
+.enlazada:focus-visible { outline: 2px solid var(--editable); outline-offset: 2px; border-radius: 6px; }
+
+@media (max-width: 900px) {
+  .section-header { grid-template-columns: 1fr 22% 22% 10%; }
+}
+
+/* ================================================================== ajustes de alineación
+   Interruptores a la derecha del título: todos los títulos tienen el mismo ancho, así que
+   los interruptores quedan en columna de una sección a otra. */
+.section-header .title .title-texto { order: 0; }
+.section-header .title .no-incluido { order: 1; }
+.section-header .title .sec-switches,
+.section .title .sec-switches:has(.sec-switch span) { order: 2; margin-left: auto; margin-right: .6rem; }
+
+/* Ruedas de la sección plegada alineadas con su cabecera: las columnas del cuerpo son
+   las mismas que las de la cabecera (1fr = 55 %, 20 %, 20 %, 5 %) y el sangrado va por
+   dentro del cuerpo, no como margen, que desplazaba las ruedas. */
+.section-contents { margin: .3rem 0 .5rem 0; grid-template-columns: 55% 20% 20% 5%; }
+.section.abierta .section-contents { grid-template-columns: 100% 0% 0% 0%; }
+.section.de-datos .section-contents, .section.de-datos.abierta .section-contents,
+.section.inactiva .section-contents, .section.inactiva.abierta .section-contents { grid-template-columns: 100%; }
+.section-body { padding: 0 2.5%; }
+.section.abierta .section-body { padding-right: 2.5%; }
+.wheel-col .progress { width: 55%; }
+
+/* 4 · piscina en una tira */
+.tira.tira-piscina { grid-template-columns: 6rem 5.4rem minmax(7.5rem, 1fr) 4.6rem 4.6rem 5.6rem 7rem 6rem; gap: .35rem; }
+.tira-piscina .num-caja input { padding-right: 1.9rem; }
+.tira-piscina .tira-cab span, .tira-cab.tira-piscina span { white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .section-contents { grid-template-columns: 46% 22% 22% 10%; }
+  .tira.tira-piscina { grid-template-columns: 1fr 1fr; }
+  .tira.tira-piscina > * { grid-area: auto; }
+}
+
+/* ================================================================== cabecera y sección 5
+   El interruptor ocupa el sitio de «No incluido»: justo detrás del título. Los dos de
+   reutilización, con nombre, bajan a una segunda línea. */
+.section-header .title .sec-switches,
+.section .title .sec-switches:has(.sec-switch span) { order: 1; margin-left: 0; margin-right: 0; }
+.section .title .sec-switches:has(.sec-switch span) { flex-basis: 100%; }
+
+/* piscina: cubierta más estrecha para que quepan los meses */
+.tira.tira-piscina { grid-template-columns: 5.8rem 5.2rem 8.6rem 5.2rem 5.2rem 5.4rem 7rem minmax(5.6rem, 1fr); }
+
+/* 5 · reutilización en tiras */
+.tira.tira-np { gap: .5rem; }
+.tira.tira-gris { grid-template-columns: 6rem minmax(0, 1fr) 9rem 7rem; }
+.tira.tira-pluv { grid-template-columns: 6rem 11rem 5.4rem minmax(0, 1fr) 7rem; }
+.tira.tira-dep { grid-template-columns: 7rem 8rem minmax(0, 1fr); }
+.tira-np .num-caja input { padding-right: 1.9rem; }
+.aviso-limita { font-size: var(--t3); color: var(--dato-suave); white-space: normal; }
+
+/* destinos en pastillas: azul encendida, blanca apagada, gris si no aplica */
+.destinos { display: flex; flex-wrap: wrap; gap: .3rem; }
+.destino { font: inherit; font-size: var(--t3); padding: .3rem .75rem; border-radius: 1rem; border: 1px solid var(--editable-borde); background: var(--background-colour); color: var(--editable-texto); cursor: pointer; }
+.destino:hover { border-color: var(--editable); background: var(--editable-fondo); }
+.destino[aria-pressed="true"] { background: var(--editable); border-color: var(--editable); color: #fff; font-weight: 600; }
+.destino.no-aplica { background: var(--dato-fondo); border-color: var(--dato-fondo); color: var(--dato-suave); cursor: not-allowed; text-decoration: line-through; text-decoration-color: var(--linea); }
+
+@media (max-width: 900px) {
+  .tira.tira-gris, .tira.tira-pluv, .tira.tira-dep, .tira.tira-piscina { grid-template-columns: 1fr 1fr; }
+  .tira.tira-np > *, .tira.tira-piscina > * { grid-area: auto; }
+  .tira-np [data-col="Destinos"] { grid-column: 1 / -1; }
+}
+
+/* ================================================================== mismo eje en todo
+   Los sangrados van en rem, no en %: con porcentajes el subtítulo se movía al plegar
+   (la columna cambia de ancho) y cada sección quedaba en un sitio distinto. Ahora el
+   título de subsección está siempre a 1,75 rem del borde, abierta o plegada. */
+.section-body, .section.abierta .section-body { padding: 0 1.75rem; }
+.sub, .section.abierta .sub { padding-left: 0; }
+.sub-body, .section.de-datos .sub-body { margin-left: 1.4rem; }
+
+/* menos aire alrededor de los subtítulos abiertos */
+.sub-header, .section.abierta .sub-header, .section.abierta .sub.ancha .sub-header,
+.section.de-datos.abierta .sub-header { padding: .5rem 0 .15rem; }
+.sub { padding-bottom: .45rem; }
+.emplaz { padding-top: .35rem; }
+.bloque { padding-top: .6rem; }
+
+/* etiqueta de tramo dentro del resumen plegado: su propio relleno, sin la raya de
+   separación de las demás piezas */
+.resumen .tramo { padding: .15em .75em; margin-left: .75rem; border-left: 0; line-height: 1.35; white-space: nowrap; }
+
+/* 1.2: banda de datos generales y tabla de viviendas */
+.banda-uso { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.25fr); padding-top: .35rem; }
+.campo-tipo .segmentado { display: flex; width: 100%; height: 2.5rem; }
+.campo-tipo .segmentado button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; padding: 0 .6rem; }
+.seg-icono svg { width: 1.15rem; height: 1.15rem; display: block; }
+.tipos { margin-top: .9rem; }
+.tipos-cab span { display: flex; align-items: center; gap: .1rem; }
+.tipos-cab span:nth-child(n+2):nth-child(-n+4) { justify-content: center; }
+.tipos-pie { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; margin-top: .45rem; }
+.tipos-pie .tipos-total { margin-top: 0; }
+
+/* ================================================================== sección 1 en rejilla
+   Tres columnas iguales con el mismo hueco (1rem) para 1.1 y 1.2, y la tabla de
+   tipologías montada sobre las mismas tres columnas: todo cae en filas y columnas. */
+.rejilla3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 1rem; row-gap: .6rem; }
+.rejilla3 .span2 { grid-column: span 2; }
+.rejilla3 .grupo-titulo { margin: 0; }
+.rej-provincia { padding-top: .35rem; align-items: stretch; }
+.rej-provincia .field.grande, .rej-provincia .field.grande .caja { height: 100%; }
+.rej-provincia .field.grande select { height: 100%; min-height: 3.4rem; }
+.rej-provincia .tile { min-height: 3.4rem; display: flex; flex-direction: column; justify-content: center; }
+.tile-valor.texto { font-size: var(--t2); }
+.rej-provincia .clima-pie { margin-top: 0; align-self: center; }
+
+.banda-uso { padding-top: .35rem; align-items: end; }
+
+/* tabla de tipologías: col. 1 tipología, col. 2 ocupantes, col. 3 viviendas · personas · ×.
+   Las dos primeras pistas miden lo mismo que una columna de la rejilla. */
+.tipos-cab, .tipo-fila {
+  grid-template-columns: calc((100% - 2rem) / 3) calc((100% - 2rem) / 3) 7.6rem minmax(0, 1fr) 2rem;
+  column-gap: 1rem;
+}
+.tipos-cab span:nth-child(n+2):nth-child(-n+3) { justify-content: flex-start; }
+.tipos-cab span:nth-child(4) { justify-content: center; }
+.tipo-fila .con-titulo { align-items: flex-start; }
+.tipo-fila .personas { text-align: center; }
+
+@media (max-width: 900px) {
+  .rejilla3 { grid-template-columns: 1fr; }
+  .rejilla3 .span2 { grid-column: auto; }
+  .tipos-cab, .tipo-fila { grid-template-columns: 1fr 1fr 2rem; }
+}
+
+/* ================================================================== 1.2 en tres columnas
+   Tipología a dos columnas y la tercera partida en mitades (ocupantes | viviendas), las
+   mismas mitades que días de uso | superficie en la banda. El total, a dos columnas. */
+.tipos-cab.rejilla3, .tipo-fila.rejilla3, .tipos-pie.rejilla3 { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 1rem; }
+.mitades { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: .6rem; align-items: end; }
+.tipos-cab .mitades span { display: flex; align-items: flex-end; }
+.tipo-sel { display: flex; align-items: center; gap: .4rem; }
+.tipo-sel .field { flex: 1; min-width: 0; }
+.tipo-fila .contador { display: grid; width: 100%; grid-template-columns: 2.2rem minmax(0, 1fr) 2.2rem; }
+.tipos-pie.rejilla3 { display: grid; align-items: center; margin-top: .45rem; }
+.tipos-pie .tipos-total { margin-top: 0; }
+.rej-provincia .clima-pie { justify-content: flex-start; }
+
+@media (max-width: 900px) {
+  .tipos-cab.rejilla3, .tipo-fila.rejilla3, .tipos-pie.rejilla3 { grid-template-columns: 1fr; }
+}
+
+/* pie de la tabla de tipologías: añadir a la izquierda, totales bajo sus columnas */
+.tipos-pie .tipos-total { background: none; padding: 0; }
+.tipos-anadir { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.tipos-media { font-size: var(--t4); color: var(--dato-suave); }
+.total-celda { background: var(--dato-fondo); border-radius: 4px; padding: .35rem .6rem; font-size: var(--t3); color: var(--dato-texto); display: flex; justify-content: space-between; align-items: baseline; gap: .4rem; }
+.total-celda span { font-size: var(--t4); color: var(--dato-suave); }
+
+/* las etiquetas de la tabla de tipologías son etiquetas de campo, como «Tipo de edificio»: misma altura (--t3) */
+.tipos-cab { font-size: var(--t3); }
+
+/* ================================================================== 2 · aparatos en rejilla
+   Mismas tres columnas que la sección 1: aparato · caudal | usos · cantidad | etiqueta. */
+.tira-ap.rejilla3 { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 1rem; align-items: center; padding: .35rem 0; border-bottom: 1px dotted var(--linea); }
+.tira-ap.tira-cab { font-size: var(--t3); color: var(--dato-suave); padding-top: 0; border-bottom: 1px solid var(--linea-suave); align-items: end; }
+.tira-ap.tira-cab span { display: flex; align-items: center; gap: .1rem; }
+.tira-ap.tira-cab .editable { color: var(--editable-texto); }
+.tira-ap .mitades { align-items: center; }
+.etiqueta-celda { display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
+.tira-ap .quitar { font-size: 1.2rem; }
+
+/* inodoro: tipo de cisterna junto al nombre, × del bloque centrada en su altura */
+.tira-bloque { position: relative; border-bottom: 1px dotted var(--linea); }
+.tira-bloque .tira-ap { border-bottom: 0; }
+.tira-bloque .tira-ap.tira-sub { padding: .2rem 0; }
+.inodoro-cab { display: flex; align-items: center; gap: .3rem .8rem; flex-wrap: wrap; }
+.inodoro-cab .segmentado button { padding: .25rem .7rem; }
+.quitar-bloque { position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
+
+/* banda gris de totales al final de cada grupo (como la de tipologías) */
+.banda-grupo { margin-top: .45rem; }
+.banda-grupo .anadir-txt { font-size: var(--t3); color: var(--dato-suave); }
+.banda-grupo .tipos-anadir { gap: .4rem; }
+.leyenda-aparatos { margin: .7rem 0 .2rem; }
+/* abierta, el resumen del grupo ya está en su banda: no se repite en la cabecera */
+#sec-aparatos.abierta .sub.ancha .sub-slot .sub-value { display: none; }
+
+/* botón de confirmar: azul, como todo lo que es acción del usuario */
+.accept-button.confirmar-si { background: var(--editable); border-color: var(--editable); color: #fff; }
+.accept-button.confirmar-si:hover { background: var(--background-colour); color: var(--editable); }
+
+@media (max-width: 900px) {
+  .tira-ap.rejilla3 { grid-template-columns: 1fr; row-gap: .4rem; }
+  .tira-ap.tira-cab { display: none; }
+}
+
+.total-celda strong { white-space: nowrap; }
+
+/* inodoro: tipo de cisterna alineado a la derecha de la columna 1 */
+.inodoro-cab { justify-content: space-between; flex-wrap: nowrap; }
+.inodoro-cab > span { display: inline-flex; align-items: center; gap: .1rem; }
+
+/* 2 · aparatos: la tercera columna en tercios (cantidad | consumo | etiqueta ×) */
+.tercios { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: .6rem; align-items: center; }
+.tira-ap.tira-cab .tercios span { display: flex; align-items: center; gap: .1rem; }
+.consumo-celda strong { font-weight: 600; color: var(--dato-texto); }
+.tira-ap .aplica { white-space: nowrap; }
+
+/* tercios: cantidad · etiqueta (estrecha) · consumo con unidades (más ancha) */
+.tercios { grid-template-columns: minmax(0, 1.1fr) minmax(0, .7fr) minmax(0, 1.4fr); }
+.consumo-celda { white-space: nowrap; }
+
+.tercios { grid-template-columns: minmax(0, 1fr) minmax(0, .85fr) minmax(0, 1.25fr); column-gap: .4rem; }
+
+/* ================================================================== 3 · riego en rejilla 1/3/3 */
+.tira-zona3 .tercios { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: .4rem; }
+.tira-zona3 .tercios-riego { grid-template-columns: minmax(0, .9fr) minmax(0, .9fr) minmax(0, 1.5fr); }
+.tira-zona3 .etiqueta-celda .tira-celda { flex: 1; min-width: 0; }
+.tira-zona3 .sel-tira { padding: .3rem .25rem; }
+.tira-zona3.tira-cab .tercios span { display: flex; align-items: center; gap: .1rem; white-space: nowrap; }
+/* abierta, ninguna subsección repite su resumen en la cabecera: ya se ve plegada */
+.section.abierta .sub.ancha .sub-slot .sub-value { display: none; }
+
+/* cabeceras de riego: pueden partirse en dos líneas en vez de pisarse */
+.tira-zona3.tira-cab .tercios span { white-space: normal; flex-wrap: wrap; line-height: 1.2; }
+.tira-zona3.tira-cab { align-items: end; }
+.tira-zona3 .tercios-riego { grid-template-columns: minmax(0, .8fr) minmax(0, .8fr) minmax(0, 1.7fr); }
+
+/* riego: columna 1 = zona (2/3) | superficie (1/3); columna 3 = densidad | sistema | consumo */
+.zona-sup { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); column-gap: .4rem; align-items: center; }
+.tira-zona3.tira-cab .zona-sup span { display: flex; align-items: flex-end; }
+.tira-zona3 .tercios-riego { grid-template-columns: minmax(0, .8fr) minmax(0, 1.4fr) minmax(0, 1.3fr); }
+.tira-zona3 .tercios-riego { grid-template-columns: minmax(0, .95fr) minmax(0, 1.3fr) minmax(0, 1.2fr); }
+
+/* La × de quitar va en el margen, justo a la derecha de la tabla, en aparatos y en
+   riego: así la última celda (el consumo) tiene todo su ancho. */
+.tira-ap { position: relative; }
+.tira-ap .etiqueta-celda > .quitar,
+.quitar-bloque { position: absolute; right: -1.45rem; top: 50%; transform: translateY(-50%); }
+
+/* aparatos: con la × en el margen, más sitio para la cantidad */
+.tira-ap:not(.tira-zona3) .tercios { grid-template-columns: minmax(0, 1.25fr) minmax(0, .8fr) minmax(0, 1.1fr); }
+.tira-ap.tira-cab .tercios span { white-space: normal; flex-wrap: wrap; line-height: 1.2; }
+
+/* ================================================================== 4 · piscina en rejilla */
+.tira-pis3 .tercios { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: .4rem; }
+.tira-pis3 .tercios-pis { grid-template-columns: minmax(0, 1.5fr) minmax(0, .9fr) minmax(0, .9fr); }
+.tira-pis3 .mitades { column-gap: .4rem; }
+.tira-pis3 .sel-tira { padding: .3rem .25rem; }
+.tira-pis3.tira-cab .tercios span, .tira-pis3.tira-cab .mitades span { white-space: normal; flex-wrap: wrap; line-height: 1.2; display: flex; align-items: flex-end; gap: .1rem; }
+.tira-pis3 .tercios-pis { grid-template-columns: minmax(0, 1.6fr) minmax(0, .8fr) minmax(0, .8fr); }
+.tira-pis3 .tercios:not(.tercios-pis) { grid-template-columns: minmax(0, .85fr) minmax(0, 1.25fr) minmax(0, 1.25fr); }
+
+/* más específico que la regla de aparatos (.tira-ap:not(.tira-zona3) .tercios), que la pisaba */
+.tira-ap.tira-pis3 .tercios.tercios-pis { grid-template-columns: minmax(0, 1.6fr) minmax(0, .8fr) minmax(0, .8fr); }
+.tira-ap.tira-pis3 .tercios:not(.tercios-pis) { grid-template-columns: minmax(0, .8fr) minmax(0, 1.4fr) minmax(0, 1.2fr); }
+
+/* ================================================================== 5 · reutilización en rejilla */
+.tira-np3 .tercios { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: .4rem; }
+.tira-np3 .mitades { column-gap: .4rem; }
+.tira-np3 .sel-tira { padding: .3rem .25rem; }
+.tira-np3.tira-cab span { white-space: normal; flex-wrap: wrap; line-height: 1.2; display: flex; align-items: flex-end; gap: .1rem; }
+.tira-np3 .destinos { gap: .25rem; }
+.tira-np3 .destino { padding: .25rem .6rem; }
+/* nota informativa (no es un valor modificado: no va en ámbar) */
+.aviso-np { margin-top: .45rem; padding: .45rem .75rem; font-size: var(--t3); color: var(--dato-texto); background: var(--dato-fondo); border-left: 3px solid var(--clase-C); border-radius: 0 4px 4px 0; }
+.aviso-np[hidden] { display: none; }
+
+/* interruptores: sin recortes (la pista llega al borde del SVG) */
+.switch { line-height: 0; flex: 0 0 auto; }
+.switch svg { overflow: visible; }
+.sec-switch .switch { height: 1.4rem; margin: 0 .35rem 0 1px; }
+
+/* pluviales: el tipo de superficie necesita algo más de ancho que el filtro */
+.tira-np3 > .tercios:first-child { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, .8fr); }
+
+/* Fila del aljibe dentro de grises y pluviales: su cabecera separa la fuente de su
+   almacenamiento, y la nota de la columna 2 dice qué decide el aljibe. */
+.tira-cab.cab-aljibe { margin-top: .55rem; }
+.nota-aljibe { font-size: var(--t3); color: var(--dato-suave); white-space: normal; line-height: 1.3; }
+.nota-aljibe strong { color: var(--dato); font-weight: 600; }
+.tira-np3 .tercios > .span2t { grid-column: span 2; }
+
+
+/* ==================================================================== CONTROLES UNIFICADOS
+ * Última palabra sobre el aspecto de los controles: va al final para mandar sobre las
+ * reglas de cada sección. Mismo alto, mismo radio y mismo tamaño de texto en toda la
+ * página; solo cambia la forma según la acción (escribir / elegir). Ver cabecera, punto 2. */
+:root {
+  --control-alto: 2.2rem;
+  --control-radio: 4px;
+  --elegir-borde: 2px solid var(--editable);
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpolyline points='1 1.5 6 6.5 11 1.5' stroke='%232f7aa6' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+}
+
+/* --- títulos: lo que se rellena en azul y negrita; los datos en gris y normal.
+       Todos los títulos de columna y de campo, a la altura t3. */
+.field .etq, .mini-label, .tira-cab, .tira-ap.tira-cab, .tipos-cab { font-size: var(--t3); }
+.tira-cab .editable, .tira-ap.tira-cab .editable, .tipos-cab .editable,
+.field .etq, .mini-label, .grupo-titulo.editable { color: var(--editable); font-weight: 600; }
+.field.lectura-only .etq { color: var(--dato-suave); font-weight: 400; }
+
+/* --- ESCRIBIR: fondo azul claro, borde fino, texto azul */
+.field input, .num-caja input, .txt-tira {
+  height: var(--control-alto); border: 1px solid var(--editable-borde); border-radius: var(--control-radio);
+  background: var(--editable-fondo); color: var(--editable-texto);
+  font: inherit; font-size: var(--t2); font-weight: 400;
+}
+.field input, .txt-tira { padding: 0 .5rem; }
+.field .caja.con-unidad input { padding-right: 4.8rem; }
+.contador, .tipo-fila .contador {
+  height: var(--control-alto); border: 1px solid var(--editable-borde); border-radius: var(--control-radio);
+  background: var(--editable-fondo);
+}
+.contador input { font-size: var(--t2); font-weight: 400; color: var(--editable-texto); }
+.contador button { color: var(--editable); font-weight: 600; }
+.field input:hover, .field input:focus, .num-caja input:hover, .num-caja input:focus,
+.txt-tira:hover, .txt-tira:focus, .contador:hover, .contador:focus-within { border-color: var(--editable); outline: none; }
+.field input:focus, .num-caja input:focus, .txt-tira:focus { background: var(--background-colour); box-shadow: 0 0 0 2px color-mix(in srgb, var(--editable) 20%, transparent); }
+/* ámbar: valor cambiado por el proyectista (solo en lo que se escribe) */
+.field.modificado input, .num-caja.modificado input { border-color: var(--aviso-colour); background: color-mix(in srgb, var(--aviso-colour) 8%, white); }
+.num-caja.error input { border-color: var(--error-colour); }
+/* gris: dato que no se toca, con el mismo alto */
+.field.lectura-only input { background: var(--dato-fondo); border-color: var(--dato-fondo); color: var(--dato-texto); }
+.num-caja.fijo, .contador.fijo { height: var(--control-alto); font-size: var(--t2); font-weight: 400; }
+
+/* --- ELEGIR: fondo blanco, borde azul de 2 px, texto azul en negrita */
+.field select, .base select, .sel-tira, .field.grande select, .rej-provincia .field.grande select {
+  height: var(--control-alto); border: var(--elegir-borde); border-radius: var(--control-radio);
+  background: var(--background-colour) var(--chevron) no-repeat right .45rem center / .65rem;
+  -webkit-appearance: none; appearance: none;
+  color: var(--editable); font: inherit; font-size: var(--t2); font-weight: 600;
+  padding: 0 1.5rem 0 .5rem; cursor: pointer;
+}
+.rej-provincia .field.grande select { height: 100%; min-height: 3.4rem; }
+.tira-zona3 .sel-tira, .tira-pis3 .sel-tira, .tira-np3 .sel-tira { padding: 0 1.3rem 0 .4rem; background-position: right .35rem center; }
+.field select:hover, .base select:hover, .sel-tira:hover { background-color: var(--editable-fondo); }
+.field select:focus, .base select:focus, .sel-tira:focus { outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--editable) 25%, transparent); }
+select option { font-weight: 400; color: var(--dato-texto); }
+
+/* selector en pastillas: mismo borde; lo elegido, relleno azul */
+.segmentado, .campo-tipo .segmentado { height: var(--control-alto); border: var(--elegir-borde); border-radius: var(--control-radio); background: var(--background-colour); }
+.segmentado button, .inodoro-cab .segmentado button {
+  height: 100%; display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+  padding: 0 .75rem; background: var(--background-colour); color: var(--editable);
+  font: inherit; font-size: var(--t3); font-weight: 600;
+}
+.segmentado button + button { border-left: 1px solid var(--editable); }
+.segmentado button:hover { background: var(--editable-fondo); }
+.segmentado button[aria-checked="true"] { background: var(--editable); color: #fff; }
+
+/* destinos: pastillas que se activan y desactivan */
+.destino, .tira-np3 .destino {
+  height: 1.9rem; padding: 0 .7rem; border: var(--elegir-borde); border-radius: 1rem;
+  background: var(--background-colour); color: var(--editable); font: inherit; font-size: var(--t3); font-weight: 600;
+}
+.destino:hover { background: var(--editable-fondo); border-color: var(--editable); }
+.destino[aria-pressed="true"] { background: var(--editable); border-color: var(--editable); color: #fff; }
+.destino.no-aplica { border: 2px solid var(--dato-fondo); background: var(--dato-fondo); color: var(--dato-suave); font-weight: 400; }
+
+/* selector con su título delante, en la misma línea (inodoro: «Descarga  Doble | Única») */
+.seg-con-titulo { display: inline-flex; align-items: center; gap: .45rem; }
+.seg-titulo { font-size: var(--t3); font-weight: 600; color: var(--editable); }
+
+
+/* Los dos tipos de control pesan lo mismo: mismo borde fino y mismo peso de letra. Solo
+   cambia el fondo: azul claro para escribir, blanco para elegir. Las columnas de piscina
+   y pluviales se reordenan (filtros antes que vaciados, filtro antes que tipo). */
+:root { --control-borde: 1px solid color-mix(in srgb, var(--editable) 65%, white); }
+.field input, .num-caja input, .txt-tira, .contador, .tipo-fila .contador,
+.field select, .base select, .sel-tira, .field.grande select, .rej-provincia .field.grande select,
+.segmentado, .campo-tipo .segmentado, .destino, .tira-np3 .destino { border: var(--control-borde); }
+.field input, .num-caja input, .txt-tira, .contador input,
+.field select, .base select, .sel-tira, .segmentado button, .inodoro-cab .segmentado button,
+.destino, .tira-np3 .destino { font-weight: 500; }
+.segmentado button + button { border-left: var(--control-borde); }
+.destino.no-aplica { border: 1px solid var(--dato-fondo); font-weight: 400; }
+.field.modificado input, .num-caja.modificado input { border-color: var(--aviso-colour); }
+.num-caja.error input { border-color: var(--error-colour); }
+.tira-ap.tira-pis3 .tercios:not(.tercios-pis) { grid-template-columns: minmax(0, 1.45fr) minmax(0, .85fr) minmax(0, 1fr); }
+.tira-np3 > .tercios:first-child { grid-template-columns: minmax(0, 1fr) minmax(0, .8fr) minmax(0, 1.25fr); }
+
+
+/* ==================================================================== 6 · RESULTADOS
+ * Fondo gris: aquí todo es dato, nada se edita. Misma rejilla de tres columnas y las
+ * mismas alturas de texto que el resto: título de fila t3 en negrita, líneas t3, unidades
+ * t4, indicador en t1. El título de cada fila lleva a su sección. */
+.section#sec-resultados .section-border { background: var(--dato-fondo); border-color: var(--linea); }
+.section#sec-resultados .section-header { border-bottom-color: var(--linea); }
+.res-tabla .tira-cab { border-bottom-color: var(--linea); }
+.res-fila { align-items: start; padding: .55rem 0; border-bottom: 1px solid var(--linea-suave); }
+.res-fila:last-child { border-bottom: 0; }
+.res-fila .mitades { align-items: start; }
+.res-celda { display: flex; flex-direction: column; gap: .15rem; min-width: 0; font-size: var(--t3); color: var(--dato-texto); }
+.res-titulo { align-self: flex-start; padding: 0; border: 0; background: none; font: inherit; font-size: var(--t3); font-weight: 600; color: var(--dato-texto); text-align: left; margin-bottom: .1rem; }
+button.res-titulo { cursor: pointer; }
+button.res-titulo:hover { text-decoration: underline; }
+button.res-titulo::after { content: " →"; color: var(--dato-suave); font-weight: 400; }
+.res-linea { font-size: var(--t3); color: var(--dato-texto); line-height: 1.35; }
+.res-linea small, .res-valor small { font-size: var(--t4); color: var(--dato-suave); }
+.res-celda > .res-valor strong { font-size: var(--t1); font-weight: 600; }
+.res-valor strong { font-weight: 600; }
+.res-clase .letra { font-size: var(--t1); min-width: 2.2em; height: 1.8em; }
+.res-fuera .res-titulo, .res-fuera .res-linea { color: var(--dato-suave); }
+.res-ambar { color: var(--aviso-colour); }
+
+.res-comprobar { margin-top: .8rem; padding-top: .7rem; border-top: 1px solid var(--linea); }
+.res-comprobar-cab { font-size: var(--t3); font-weight: 600; color: var(--dato-texto); margin-bottom: .35rem; }
+#res-avisos { list-style: none; margin: 0; padding: 0; display: grid; gap: .3rem; }
+.res-aviso { display: flex; align-items: center; gap: .5rem; font-size: var(--t3); color: var(--dato-texto); }
+.res-marca { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; border-radius: 50%; font-size: var(--t4); font-weight: 700; color: #fff; }
+.res-aviso.ok .res-marca { background: var(--clase-C); }
+.res-aviso.ambar .res-marca { background: var(--aviso-colour); }
+.res-aviso.error .res-marca { background: var(--error-colour); }
+.res-ir { margin-left: auto; padding: 0; border: 0; background: none; font: inherit; font-size: var(--t3); color: var(--editable); cursor: pointer; }
+.res-ir:hover { text-decoration: underline; }
+.res-acciones { display: flex; justify-content: flex-end; margin-top: .7rem; }
+.res-celda.res-clase { align-items: flex-start; }
+
+/* la leyenda y «Restaurar» solo con la sección abierta: plegada no aportan nada */
+.section:not(.abierta) .leyenda-aparatos { display: none; }
+
+/* 6 · plegada enseña el resumen (6.1–6.3) y las ruedas; abierta, la tabla completa */
+#sec-resultados:not(.abierta) .res-abierto,
+#sec-resultados.abierta .res-plegado { display: none; }
+#sec-resultados .res-plegado .sub-body, #sec-resultados .res-plegado .sub-res { display: none; }
+.res-mini { display: inline-flex; align-items: center; gap: .3rem; margin-right: .8rem; font-size: var(--t3); color: var(--dato-texto); }
+.res-sin { color: var(--dato-suave); }
+.res-titulo .info { vertical-align: -.15em; }
+.res-letras { display: flex; flex-wrap: nowrap; align-items: center; gap: .8rem; }
+.res-letras .res-mini { margin-right: 0; white-space: nowrap; }
+
+
+/* ==================================================================== minibarra de navegación
+ * Marcas finas al borde izquierdo de las secciones (estilo Notion). Neutras en reposo;
+ * la sección en pantalla, más larga y oscura; las abiertas, un poco más marcadas. El
+ * nombre aparece al pasar el ratón. × arriba pliega todas. */
+.minibarra { position: fixed; top: 50%; transform: translate(-100%, -50%); z-index: 20;
+  display: flex; flex-direction: column; align-items: flex-end; gap: .45rem; padding: .5rem .35rem; }
+.minibarra button { font: inherit; border: 0; background: none; cursor: pointer; padding: 0; }
+.minibarra-plegar { width: 1.1rem; height: 1.1rem; margin-bottom: .2rem; border-radius: 50%; line-height: 1;
+  font-size: .9rem; color: var(--dato-suave); display: inline-flex; align-items: center; justify-content: center; }
+.minibarra-plegar:hover { background: var(--dato-fondo); color: var(--dato-texto); }
+.minibarra-marca { position: relative; width: 14px; height: 10px; display: flex; align-items: center; justify-content: flex-end; }
+.minibarra-marca::before { content: ""; display: block; width: 8px; height: 2px; border-radius: 1px; background: var(--linea); transition: width .15s, background-color .15s; }
+.minibarra-marca.abierta::before { background: var(--dato-suave); }
+.minibarra-marca.actual::before { width: 14px; background: var(--dato-texto); }
+.minibarra-marca:hover::before, .minibarra-marca:focus-visible::before { width: 14px; background: var(--editable); }
+.minibarra-nombre { position: absolute; left: calc(100% + .5rem); top: 50%; transform: translateY(-50%);
+  white-space: nowrap; font-size: var(--t4); color: var(--dato-texto); background: #fff; border: 1px solid var(--linea-suave);
+  border-radius: 4px; padding: .15rem .45rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); opacity: 0; pointer-events: none; transition: opacity .12s; }
+.minibarra:hover .minibarra-nombre { opacity: 1; }
+.minibarra-marca.actual .minibarra-nombre { font-weight: 600; }
+@media (max-width: 900px) { .minibarra { display: none; } }
+@media print { .minibarra { display: none; } }
+/* un poco más de aire para que los nombres no se pisen y las marcas se vean */
+.minibarra { gap: .3rem; }
+.minibarra-marca { width: 18px; height: 18px; }
+.minibarra-marca::before { width: 10px; height: 2px; }
+.minibarra-marca.actual::before, .minibarra-marca:hover::before, .minibarra-marca:focus-visible::before { width: 18px; }
+.minibarra-plegar { width: 1.3rem; height: 1.3rem; font-size: 1rem; }
+.minibarra-nombre { font-size: var(--t3); }
+.minibarra { gap: .45rem; }
+.minibarra-nombre { padding: .1rem .45rem; line-height: 1.3; }
+
+/* minibarra a la derecha, sin textos; arriba un círculo hueco que pliega todas */
+.minibarra { transform: translateY(-50%); align-items: flex-start; padding: .5rem .25rem; }
+.minibarra-marca { justify-content: flex-start; }
+.minibarra-plegar { width: 18px; height: 18px; margin-bottom: .15rem; border-radius: 0; background: none; display: flex; align-items: center; justify-content: flex-start; }
+.minibarra-plegar::before { content: ""; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--linea); box-sizing: border-box; transition: border-color .15s, background-color .15s; }
+.minibarra-plegar:hover { background: none; }
+.minibarra-plegar:hover::before, .minibarra-plegar:focus-visible::before { border-color: var(--editable); background: var(--editable-fondo); }
+
+/* ==================================================================== caja según el estado
+ * Plegada: sin caja, solo título, resumen y ruedas, con una línea fina debajo que separa
+ * de la siguiente. Abierta: aparece la caja que enmarca toda la sección, con una sombra
+ * muy suave. El borde transparente mantiene el mismo grosor, así nada se mueve al cambiar. */
+.section-border { transition: border-color .2s ease, box-shadow .2s ease; }
+.section:not(.abierta) .section-border { border-color: transparent; border-bottom-color: var(--linea); border-radius: 0; }
+.section:not(.abierta) .section-header { border-bottom-color: transparent; }
+.section.abierta .section-border { border-color: var(--linea); box-shadow: 0 1px 6px rgba(0, 0, 0, .07); }
+/* la 6 guarda su fondo gris; plegada, sin borde lateral como las demás */
+.section#sec-resultados:not(.abierta) .section-border { border-color: transparent; border-bottom-color: var(--linea); }
+
+/* Plegada, la cabecera es una barra que invita a abrirla: fondo gris claro y la flecha
+   dentro de un círculo azul (se pulsa). Al pasar el ratón se marca más. Abierta, la
+   cabecera vuelve a blanco y la flecha a gris: ya no hay nada que abrir. */
+.section-header { transition: background-color .15s ease; }
+.section:not(.abierta) .section-header { background: var(--header-colour); border-radius: 4px; }
+.section:not(.abierta) .section-header:hover { background: #e8ebee; }
+.section-header .toggle { display: flex; align-items: center; justify-content: center; }
+.section-header .arrow { width: 1.7rem; height: 1.7rem; padding: .22rem; box-sizing: border-box; border: 1px solid transparent; border-radius: 50%;
+  transition: transform .25s ease, background-color .15s, border-color .15s; }
+.section:not(.abierta) .section-header .arrow { border-color: var(--editable); background: #fff; stroke: var(--editable); }
+.section:not(.abierta) .section-header:hover .arrow { background: var(--editable); stroke: #fff; }
+/* la 6 ya es gris: su barra plegada un punto más oscura para que se lea igual */
+.section#sec-resultados:not(.abierta) .section-header { background: #e8ebee; }
+
+/* ==================================================================== barra de la cabecera
+ * «Nuevo proyecto» y, en modo servidor, el aviso si la API no responde. Verde del IVE,
+ * como los demás enlaces de la cabecera. */
+.toolbar { gap: 1rem; }
+.barra-proyecto { display: flex; align-items: center; gap: .6rem; }
+.barra-proyecto[hidden] { display: none; }
+.barra-estado { font-size: var(--t4); color: var(--dato-suave); }
+.barra-estado.error { color: var(--error-colour); max-width: 26rem; text-align: right; }
+.barra-btn { font: inherit; font-size: var(--t3); font-weight: 600; height: 2rem; padding: 0 .85rem; border: 1px solid var(--ive-colour);
+  border-radius: 4px; background: var(--background-colour); color: var(--ive-colour); cursor: pointer; white-space: nowrap; }
+.barra-btn:hover { background: color-mix(in srgb, var(--ive-colour) 10%, white); }
+
+@media (max-width: 900px) {
+  .barra-estado.error { display: none; }
+}
+
+/* ==================================================================== datos pendientes y estado
+ * Mientras un dato no está, su caja enseña un texto de ejemplo en gris («–», «- Seleccionar
+ * provincia -»). Junto a la flecha de cada sección, un círculo con su estado: verde
+ * completo, ámbar faltan datos, rojo dato imposible. Resultados no se abre hasta que todo
+ * esté en verde. */
+:root { --estado-ok: #2e9d6a; --estado-falta: #e0a020; --estado-error: #d64545; }
+input::placeholder { color: var(--dato-suave); opacity: .8; font-weight: 400; }
+select.pendiente, .field select.pendiente, .sel-tira.pendiente { color: var(--dato-suave); font-weight: 400; }
+select option { color: var(--dato-texto); }
+.section-header .toggle { gap: .45rem; }
+.estado-sec { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 1.15rem; height: 1.15rem;
+  border-radius: 50%; font-size: .72rem; font-weight: 700; line-height: 1; color: #fff; }
+.estado-sec:empty { display: none; }
+.estado-sec.ok { background: var(--estado-ok); }
+.estado-sec.falta { background: var(--estado-falta); }
+.estado-sec.error { background: var(--estado-error); }
+.estado-sec.bloqueo { background: var(--linea); }
+.estado-sec.bloqueo::before { content: ""; width: .45rem; height: .45rem; border: 2px solid #fff; border-radius: 1px; }
+/* en el móvil la columna de la flecha es estrecha: el estado va encima */
+@media (max-width: 900px) { .section-header .toggle { flex-direction: column; gap: .2rem; } }
+
+/* 6 bloqueada: sin resumen ni ruedas, solo la lista de lo que falta */
+.res-bloqueo { display: none; }
+#sec-resultados.bloqueada .res-bloqueo { display: block; padding: .4rem 0 .6rem; }
+#sec-resultados.bloqueada .res-plegado, #sec-resultados.bloqueada .wheel-col,
+#sec-resultados.bloqueada .section-header .h1, #sec-resultados.bloqueada .section-header .h2 { display: none; }
+#sec-resultados.bloqueada .section-header { cursor: default; }
+#sec-resultados.bloqueada .section-header .arrow { opacity: .35; }
+#sec-resultados.bloqueada .section-contents { grid-template-columns: 100%; }
+.res-bloqueo p { margin: 0 0 .4rem; font-size: var(--t3); color: var(--dato-texto); }
+#res-pendientes { list-style: none; margin: 0; padding: 0; display: grid; gap: .3rem; }
+#res-pendientes li { display: flex; align-items: center; gap: .5rem; font-size: var(--t3); color: var(--dato-texto); }
+
+/* minibarra: cada marca con el color de su estado */
+.minibarra-marca.falta::before { background: var(--estado-falta); }
+.minibarra-marca.error::before { background: var(--estado-error); }
+.minibarra-marca.ok::before { background: var(--estado-ok); }
+.estado-sec.bloqueo:empty { display: inline-flex; }
+
+/* La flecha queda siempre en el mismo sitio, haya alerta o no: el estado se coloca en
+   absoluto a su izquierda y no empuja nada. */
+.section-header .toggle { position: relative; justify-content: center; gap: 0; }
+.section-header .toggle .estado-sec { position: absolute; top: 50%; right: calc(50% + 1.3rem); transform: translateY(-50%); }
+@media (max-width: 900px) { .section-header .toggle { flex-direction: row; } }
+
+/* 6 · ruedas del resumen sobre fondo gris: el aro sin rellenar va en blanco y el
+   centro toma el gris del fondo, para que la parte rellena se lea contra el blanco. */
+#sec-resultados .wheel svg path:first-child { fill: #fff; }
+#sec-resultados .wheel svg circle { fill: var(--dato-fondo); }
+#sec-resultados:not(.abierta) .section-header .wheel svg circle { fill: #e8ebee; }
+
+/* ventana de descarga del informe: en el azul de la herramienta, no en el verde IVE */
+#modal-informe .generate-icon { fill: var(--editable); }
+#modal-informe .accept-button { background: var(--editable); border-color: var(--editable); color: #fff; }
+#modal-informe .accept-button:hover { background: var(--background-colour); color: var(--editable); }
+#modal-informe .close { color: var(--editable); }

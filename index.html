@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Huella de agua en edificación | IVE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="https://nivel-industrializacion.five.es/assets/images/LOGO_IVE_MIN.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/estilos.css?v=2026112017">
+</head>
+<body>
+
+<!-- ===================================================================== cabecera -->
+<header class="header">
+  <div class="link-container">
+    <a class="contact-link" href="https://www.five.es/contacto" target="_blank" rel="noopener noreferrer">Contacto</a>
+    <a class="ive-link" href="https://www.five.es/" target="_blank" rel="noopener noreferrer">IVE ⟶</a>
+  </div>
+  <div class="title-toolbar">
+    <div class="logo-wrapper">
+      <img class="logo" src="https://nivel-industrializacion.five.es/assets/images/LOGO_IVE_MIN.svg" alt="IVE">
+      <h1 class="app-title">Huella de agua en edificación</h1>
+    </div>
+    <div class="toolbar">
+      <!-- «Nuevo proyecto» y avisos del servidor (lo pinta app.js) -->
+      <div class="barra-proyecto" id="barra-proyecto" hidden></div>
+      <button class="icon-button" id="btn-informe" title="Descarga informe en .pdf" aria-label="Descargar informe">
+        <svg viewBox="0 0 16 16" class="generate-icon"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===================================================================== cuerpo -->
+<div class="layout">
+  <aside class="left-panel" id="panel-resultados">
+    <div class="top-wheel">
+      <label class="panel-label">CLASE DE CONSUMO DE AGUA</label>
+      <div class="global-wheel" id="rueda-global"></div>
+      <div class="panel-nota" id="nota-global"></div>
+    </div>
+    <div class="bottom-wheels">
+      <div class="mini">
+        <label class="panel-sublabel">Riego</label>
+        <div class="secondary-wheel" id="rueda-riego"></div>
+      </div>
+      <div class="mini">
+        <label class="panel-sublabel">Piscina</label>
+        <div class="secondary-wheel" id="rueda-piscina"></div>
+      </div>
+      <div class="mini">
+        <label class="panel-sublabel">Reutilización</label>
+        <div class="secondary-wheel" id="rueda-reutilizacion"></div>
+      </div>
+      <div class="mini">
+        <label class="panel-sublabel">Huella <span class="unidad">m³ eq/persona·año</span></label>
+        <div class="secondary-wheel" id="rueda-huella"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="right-panel" id="secciones"></main>
+</div>
+
+<!-- ===================================================================== pie -->
+<footer>
+  <div class="top-footer">
+    <div class="footer-content">
+      <div class="footer-col">
+        <img class="logo-gva" src="https://nivel-industrializacion.five.es/assets/images/LOGO-IVE-GVA.svg" alt="IVE - Generalitat Valenciana">
+      </div>
+      <div class="footer-col">
+        <h6 class="footer-title">Instituto Valenciano de la Edificación</h6>
+        <div class="footer-list">
+          Universitat Politècnica de València<br>
+          Edificio 1 B, Puerta R (UPV)<br>
+          Camino de Vera, s/n. 46022 València<br>
+          Tel. +34 960 131 131<br>
+          <a class="footer-link" href="mailto:ive@five.es">ive@five.es</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h6 class="footer-title">Atención al público</h6>
+        <div class="footer-separated-elems">
+          <div class="footer-list">De 9:00 a 14:00 h de lunes a viernes</div>
+          <div class="social-media-row">
+            <a class="footer-logo-link" href="https://www.facebook.com/InstitutoValencianoEdificacion/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f icon-settings"></i></a>
+            <a class="footer-logo-link" href="https://twitter.com/Fundacion_IVE" target="_blank" rel="noopener" aria-label="X"><i class="fa-brands fa-x-twitter icon-settings"></i></a>
+            <a class="footer-logo-link" href="https://www.linkedin.com/company/ive" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in icon-settings"></i></a>
+            <a class="footer-logo-link" href="https://www.youtube.com/user/InstitutoIVE" target="_blank" rel="noopener" aria-label="YouTube"><i class="fa-brands fa-youtube icon-settings"></i></a>
+            <a class="footer-logo-link" href="https://www.instagram.com/fundacion_ive/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram icon-settings"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h6 class="footer-title">TE PUEDE INTERESAR...</h6>
+        <div class="footer-list">
+          <a class="footer-link" href="https://nivel-industrializacion.five.es/" target="_blank" rel="noopener">Índice preliminar de industrialización</a><br>
+          <a class="footer-link" href="https://xarxaloc.es/" target="_blank" rel="noopener">Red de oficinas XALOC</a><br>
+          <a class="footer-link" href="https://registrochc.five.es/" target="_blank" rel="noopener">Registro CHC</a><br>
+          <a class="footer-link" href="https://calab.es/" target="_blank" rel="noopener">CaLab</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-footer">
+    <div class="bottom-footer-row">
+      <a class="bottom-footer-link" href="https://www.five.es/condiciones-de-uso" target="_blank">Aviso legal</a>
+      <a class="bottom-footer-link" href="https://www.five.es/proteccion-de-datos" target="_blank">Política de privacidad</a>
+      <a class="bottom-footer-link" href="https://www.five.es/politica-de-cookies" target="_blank">Política de cookies</a>
+      <a class="bottom-footer-link" href="https://www.five.es/condiciones-de-contratacion" target="_blank">Condiciones generales de contratación</a>
+      <a class="bottom-footer-link" href="https://www.five.es/fundacion-ive/#perfil-del-contratante" target="_blank">Perfil del contratante</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ===================================================================== ventanas -->
+<div class="modal" id="modal-informe" hidden>
+  <div class="modal-window">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <svg viewBox="0 0 16 16" class="generate-icon"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg>
+        <p class="modal-title">Datos del proyecto</p>
+      </div>
+      <button class="close" data-cerrar aria-label="Cerrar">×</button>
+    </div>
+    <div class="modal-content">
+      <div class="input-fields" id="campos-informe"></div>
+      <div class="input-accept-column">
+        <button class="accept-button" id="btn-generar">Generar informe</button>
+        <label class="accept-error-label" id="aviso-informe"></label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-info" hidden>
+  <div class="popup-content">
+    <span class="popup-header">
+      <svg width="1.1rem" height="1.1rem" viewBox="0 0 16 16" class="symbol"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/></svg>
+      <label class="popup-title" id="info-titulo"></label>
+    </span>
+    <button class="close" data-cerrar aria-label="Cerrar">×</button>
+    <div class="message-wrapper"><div class="comment" id="info-texto"></div></div>
+  </div>
+</div>
+
+<!-- informe que se imprime: lo rellena app.js justo antes de imprimir -->
+<section class="informe" id="informe" aria-hidden="true"></section>
+
+<!-- js/datos.js y js/calculo.js no se cargan aquí: en modo demo los añade js/api.js;
+     en modo servidor no llegan al navegador -->
+<script src="js/proyecto.js?v=2026112017"></script>
+<script src="js/api.js?v=2026112017"></script>
+<script src="js/informe.js?v=2026112017"></script>
+<script src="js/app.js?v=2026112017"></script>
+</body>
+</html>
