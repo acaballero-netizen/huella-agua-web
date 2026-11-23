@@ -1254,3 +1254,70 @@ select option { color: var(--dato-texto); }
 #modal-informe .accept-button { background: var(--editable); border-color: var(--editable); color: #fff; }
 #modal-informe .accept-button:hover { background: var(--background-colour); color: var(--editable); }
 #modal-informe .close { color: var(--editable); }
+
+/* ==================================================================== teléfono
+   Hasta 600 px. Las ruedas de cada sección ya están en el panel de arriba, así que
+   aquí sobran: el contenido ocupa todo el ancho y las cabeceras quedan en título y
+   flecha. Las subsecciones apilan su título y su resumen en vez de ponerlos en fila. */
+@media (max-width: 600px) {
+  .section-header, .section.abierta .section-header { grid-template-columns: minmax(0, 1fr) auto !important; }
+  .section-header .h1, .section-header .h2 { display: none !important; }
+  .section-header .toggle { grid-column: 2 !important; padding-right: .5rem; }
+  .section-header .title { padding: .7rem .9rem; }
+
+  .section-contents, .section.abierta .section-contents { grid-template-columns: 100% !important; margin: .2rem 0 .5rem; }
+  .section-contents > .wheel-col, .sub-res { display: none !important; }
+  .section-body, .section.abierta .section-body { padding: 0 .9rem !important; }
+
+  .sub-header, .section.abierta .sub-header, .section.abierta .sub.ancha .sub-header {
+    display: flex !important; flex-direction: column; align-items: stretch; gap: .35rem; }
+  .sub-title { width: auto !important; }
+  .sub-value, .resumen { justify-content: flex-start !important; text-align: left !important; flex-wrap: wrap; }
+  .sub-slot, .section.abierta .sub-slot, .section.abierta .sub.ancha .sub-slot,
+  .section.de-datos .sub-slot, .section.de-datos.abierta .sub-slot { justify-items: start !important; justify-content: flex-start !important; }
+  .sub-slot:empty, .section.abierta .sub-slot:not(:has(> :not(.sub-value))) { min-height: 0; }
+  .resumen > :first-child { padding-left: 0; }
+
+  /* 1.1 provincia: el desplegable justo debajo de su título, y los datos después */
+  .rej-provincia > .grupo-titulo { order: 0; }
+  .rej-provincia > .field { order: 1; }
+  .rej-provincia > :not(.grupo-titulo):not(.field) { order: 2; }
+
+  /* Tablas en tiras (aparatos, zonas, piscina, aljibes): sin fila de títulos; cada
+     fila pasa a ficha y cada casilla lleva encima el nombre de su columna. */
+  .tira-cab, .tira-ap.tira-cab { display: none !important; }
+  .tira-ap { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; gap: .55rem; padding: .9rem 0 !important;
+    border-bottom: 1px solid var(--linea-suave); }
+  .tira-ap > .mitades, .tira-ap > .tercios { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: .55rem .6rem; }
+  .tira-ap [data-col]::before { content: attr(data-col); display: block; font-size: var(--t4); color: var(--dato-suave); margin-bottom: .25rem; }
+  .tira-ap .tira-celda[data-col]::before { color: var(--editable-texto); font-weight: 600; }
+  .tira-ap .tira-nombre { font-weight: 600; }
+  /* la regla vieja de 900 px daba nombre de área a la celda del nombre y creaba columnas fantasma */
+  .tira-ap > * { grid-area: auto !important; }
+
+  .rej-provincia { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .rej-provincia > :not(.tile) { grid-column: 1 / -1; }
+  .tipos-cab .mitades { display: none !important; }
+  /* la × de quitar, arriba a la derecha de cada ficha en vez de en el margen */
+  .tira-ap .etiqueta-celda > .quitar, .quitar-bloque { right: 0; top: .7rem; transform: none; }
+  .tira-ap .tira-nombre, .tira-ap .tira-nombre.inodoro-cab { padding-right: 1.8rem !important; }
+  .tira-zona3:not(.tira-cab) { padding-right: 1.8rem !important; }
+  /* inodoro: el tipo de descarga en su propia línea, debajo del nombre */
+  .inodoro-cab { flex-wrap: wrap; row-gap: .5rem; }
+  .inodoro-cab .seg-con-titulo { flex-basis: 100%; }
+  /* grupos de tres casillas en dos columnas: la primera a todo el ancho y las otras dos
+     juntas (cubierta | desde-hasta, vegetación | demanda-microclima…) */
+  .tira-ap > .tercios > :first-child:nth-last-child(3) { grid-column: 1 / -1 !important; }
+  /* en el sistema de riego el nombre largo es el segundo */
+  .tira-zona3 .tercios-riego > :first-child:nth-last-child(3) { grid-column: auto !important; }
+  .tira-zona3 .tercios-riego > :nth-child(2) { grid-column: 1 / -1 !important; grid-row: 1 !important; }
+
+  /* cabecera de la página: el título en dos líneas en vez de cortado */
+  .logo-wrapper .app-title { white-space: normal; text-overflow: clip; line-height: 1.15; max-width: 7.5rem; }
+  .barra-btn { padding-left: .7rem; padding-right: .7rem; }
+}
+
+/* selector de dos opciones: siempre en una línea (con poco ancho «Única» se bajaba y
+   quedaba recortada por el borde) */
+.segmentado { flex-wrap: nowrap; }
+.segmentado > button { white-space: nowrap; flex: 1 0 auto; }

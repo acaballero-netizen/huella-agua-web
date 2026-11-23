@@ -15,7 +15,7 @@
   "use strict";
 
   const BASE = "/api";   // si la API vive en otra dirección (p. ej. otro dominio en Azure), va aquí
-  const VERSION = "2026112017";   // la misma que los ?v= de index.html
+  const VERSION = "2026112308";   // la misma que los ?v= de index.html
   let activa = false;
 
   async function pedir(metodo, ruta, cuerpo) {
